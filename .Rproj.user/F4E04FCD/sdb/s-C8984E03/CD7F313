@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1472659333254.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CD7F313",
+    "lastKnownWriteTime" : 3478243763261957491,
+    "last_content_update" : 1472659333254,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "cfanybh6zz",
+        "caption" : "avg_scores_by_country_complete",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=avg_scores_by_country_complete&cache_key=cfanybh6zz",
+        "displayedObservations" : "68",
+        "environment" : "",
+        "object" : "avg_scores_by_country_complete",
+        "totalObservations" : "68",
+        "variables" : "4"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

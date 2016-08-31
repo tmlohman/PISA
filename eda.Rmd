@@ -1,0 +1,121 @@
+---
+title: "Untitled"
+author: "Tegan Lohman"
+date: "August 29, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+
+```
+
+
+
+```{r}
+
+# Load data, clean up table, check types
+pisadata <- read.table('sample2.csv', header = TRUE, sep = ",")
+pisadict <- read.csv('pisadict2012.csv', header = FALSE)
+
+ncol(pisadata)
+nrow(pisadict)
+
+header <- t(pisadict)[1,]
+names(pisadata) <- header
+
+summary(pisadata)
+View(pisadata[502:506])
+
+str(pisadata)
+```
+
+```{r}
+
+colnames(pisadata)[colnames(pisadata)=="Country code 3-character"] <- "Country"
+
+country_groups <- group_by(pisadata, Country)
+
+ggplot(data = country_groups, aes(factor(Country))) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+Most countries have about 50 students represented in this sample, however a few are heavily over or under-represented. The United States is represented, as are several individual states. I wonder if all states have individual data in the complete data set.
+```{r}
+avg_scores_by_country <- aggregate(pisadata[, c(502, 542, 547)],
+                                   list(pisadata$Country), mean)
+names(avg_scores_by_country) <- c('country', 'math', 'reading', 'science')
+ggplot(avg_scores_by_country, ) +
+  geom_point(aes(country, math), color = 'blue') +
+  geom_point(aes(country, reading), color = 'red') +
+  geom_point(aes(country, science), color = 'green') +
+  the?me(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+The scores for math, reading, and science tend to fall within a narrow range by country. In other words, countries tend to either do well in everything, or poorly in everything.
+```{r}
+scores_and_ses <- read.csv('selected_columns_sample.csv', colClasses = c('factor', 'numeric', 'numeric', 'numeric', 'numeric'))
+
+View(scores_and_ses$escs)
+
+ggplot(scores_and_ses) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+   geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+   geom_point(aes(escs, science), color = 'green', alpha = 0.2) 
+
+```
+Internationally, students from families who are better off financially score better on the math, reading, and science assessments. Does this correlation vary by country?
+```{r}
+United_States <- subset(scores_and_ses, country == 'United States of America')
+China <- subset(scores_and_ses, country == 'Macao-China')
+Germany <- subset(scores_and_ses, country == 'Germany')
+Brazil <- subset(scores_and_ses, country == 'Brazil')
+
+p1 <- ggplot(United_States) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("United States")
+
+p2 <- ggplot(Brazil) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("Brazil")
+
+p3 <- ggplot(China) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("China")
+
+p4 <- ggplot(Germany) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("Germany")
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+
+```
+The link between socio-economic status and test scores varies by country.
+
+```{r}
+
+scores_and_ses_complete <- read.csv('selected_columns_complete.csv', header = TRUE, colClasses = c('factor', 'numeric', 'numeric', 'numeric', 'numeric'))
+
+avg_scores_by_country_complete <- aggregate(scores_and_ses_complete[, c(3,4,5)],
+                                   list(scores_and_ses_complete$country), mean)
+
+names(avg_scores_by_country_complete) <- c('country', 'math_avg', 'reading_avg', 'science_avg')
+
+write.table(avg_scores_by_country_complete, 
+            file = "avg_scores_by_country_complete.csv",
+            sep = ",")
+
+```
+

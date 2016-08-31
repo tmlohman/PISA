@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1472598676585.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "FF7DEFB8",
+    "lastKnownWriteTime" : 3478243763261957491,
+    "last_content_update" : 1472598676585,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "1vpb2oi2qe",
+        "caption" : "scores_and_ses",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=scores_and_ses&cache_key=1vpb2oi2qe",
+        "displayedObservations" : 4854,
+        "environment" : "",
+        "object" : "scores_and_ses",
+        "totalObservations" : 4854,
+        "variables" : 5
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+  
+    <script type="text/javascript">  
+    
+    var scores = d3.csv("avg_scores_by_country_complete.csv", function(data) {
+		dataset = data.map(function(d) { 
+			return [ ["country"], 
+					 +d["math_avg"], 
+					 +d["reading_avg"], 
+					 +d["science_avg"] ]; 
+			});
+
+		});
+    var avg_scores = d3.csv("avg_scores_by_country_complete.csv", function(data) {
+					 data.forEach(function(d) {
+						 d.math_avg = +d.math_avg;
+						 d.reading_avg = +d.reading_avg;
+						 d.science_avg = +d.science_avg;
+						 });
+					 console.log(data[40]);
+					});
+					
+	function color_scale(data) {
+			var colors = ["#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"]
+			
+			var score_extent = d3.extent(data, function(d) {
+				return d.values['math_avg'];
+			});
+
+			
+			var score_scale = d3.scale.quantile()
+						   .domain(score_extent)
+						   .range(colors);
+			
+			return score_scale
+		}
+		
+	console.log(color_scale(avg_scores));
+    
+    
+    </script>
+</body>
+</html>
