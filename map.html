@@ -6,21 +6,31 @@
   
     <script type="text/javascript">  
 		
+	    d3.csv("avg_scores_by_country_complete.csv", function(data) {
+				 data.forEach(function(d) {
+					 d.math_avg = +d.math_avg;
+					 d.reading_avg = +d.reading_avg;
+					 d.science_avg = +d.science_avg;
+					 });
+				});
+		
 		function color_scale(data) {
 			var colors = ["#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"]
 			
+			console.log(avg_scores);
+			
 			var score_extent = d3.extent(data, function(d) {
-				return d.values['math_avg'];
+				return d['math_avg'];
 			});
 			
 			var score_scale = d3.scale.quantile()
 						   .domain(score_extent)
 						   .range(colors);
 			
-			
+
 		}
 			
-			
+
 			
         function draw(geo_data) {
 	        "use strict";
@@ -47,7 +57,7 @@
 						 .append('path')
 						 .attr('d', path)
 						 .style('fill', function(data) {
-							 if (data['name'] == "Brazil") {
+							 if (data['properties']['name'] == "Brazil") {
 								 return '#deebf7';
 							 }
 							 else {
