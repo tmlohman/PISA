@@ -8,14 +8,13 @@
     <script type="text/javascript">  
     
 	
-	data = [["one", 1.0], ["two", 2.0], ["three", 3.0], ["four", 4.0], ["five", 5.0], ["six", 6.0], ["seven", 7.0]];
+
 	
 	function pick_color(data) {
 		var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
 		var score_extent = d3.extent(data, function(d) {
-				return d[1];
+				return d[2];
 			});
-		console.log(score_extent);
 		var score_scale = d3.scale.quantile()
 						   .domain(score_extent)
 						   .range(colors);
@@ -23,17 +22,25 @@
 		var color_assignments = {};
 		
 		for (d in data) {
-			var key = data[d][0];
-			var value = data[d][1]
+			var key = data[d][1];
+			var value = data[d][2]
 			color_assignments[key] = score_scale(value);
 		}
 
+		console.log(score_extent);
 	return color_assignments;	
 
 	}
-	
-	color_assignments = pick_color(data);
-	console.log(color_assignments)	
+
+
+	d3.csv("avg_scores_by_country_complete.csv", 
+			function(d) {
+					 d.math_avg = +d.math_avg;
+					 d.reading_avg = +d.reading_avg;
+					 d.science_avg = +d.science_avg;
+					 console.log(d)
+					 });
+				
 
 
     
