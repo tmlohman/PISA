@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+  
+    <script type="text/javascript">  
+    
+	
+	data = [["one", 1.0], ["two", 2.0], ["three", 3.0], ["four", 4.0], ["five", 5.0], ["six", 6.0], ["seven", 7.0]];
+	
+	function pick_color(data) {
+		var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
+		var score_extent = d3.extent(data, function(d) {
+				return d[1];
+			});
+		console.log(score_extent);
+		var score_scale = d3.scale.quantile()
+						   .domain(score_extent)
+						   .range(colors);
+
+		var color_assignments = {};
+		
+		for (d in data) {
+			var key = data[d][0];
+			var value = data[d][1]
+			color_assignments[key] = score_scale(value);
+		}
+
+	return color_assignments;	
+
+	}
+	
+	color_assignments = pick_color(data);
+	console.log(color_assignments)	
+
+
+    
+    
+    </script>
+</body>
+</html>
