@@ -68,11 +68,28 @@
 							return 'white'
 						}
 					}
+					var math_scores = {};
+					
+					for (var i = 0; i < l; i++) {
+						math_scores[data[i].country] = data[i].math_avg;
+					}
+					
+					function update_score(d) {
+						if (d.properties.name in color_assignments) {
+							return [d.properties.name,
+							math_scores[d.properties.name]];
+						} else {
+							return [d.properties.name, "no data available"];
+						}
+					}
 					
 
 										
 					svg.selectAll('path')
                        .style('fill', update_color)
+                    
+                    svg.selectAll('title')
+					   .text(update_score)
                        
                        
 				}
