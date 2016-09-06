@@ -32,7 +32,11 @@
 						 .attr('d', path)
 						 .style('fill', '#f7fbff')	 
 						 .style('stroke', 'black')
-						 .style('stroke-width', 0.5);
+						 .style('stroke-width', 0.5)
+                         .append('svg:title')
+                         .text(function(d) {
+						        return d.properties.name
+					         });
     
 				function pick_color(data) {
 					data.map(function (d) {
@@ -65,32 +69,12 @@
 						}
 					}
 					
-					var tooltip = d3.select("body")
-									.data(data)
-									.append("div")
-									.style("position", "absolute")
-									.style("z-index", "10")
-									.style("visibility", "hidden")
-									.text(function (d) {
-										return [d.country, d.math_avg];
-										});
+
 										
 					svg.selectAll('path')
                        .style('fill', update_color)
-                       .on("mouseover", function() {
-						   return tooltip.style("visibility", "visible");
-						   })
-					   .on("mousemove", function() {
-						   return tooltip.style("top", (event.pageY-10)+"px")
-										 .style("left",(event.pageX+10)+"px");
-						   })
-					   .on("mouseout", function() {
-						   return tooltip.style("visibility", "hidden");
-						   });
                        
-                    
-
-					
+                       
 				}
 			
 				d3.csv("avg_scores_by_country_complete2.csv", pick_color)	
