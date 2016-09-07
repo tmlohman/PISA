@@ -7,40 +7,85 @@
   
     <script type="text/javascript">  
     
-    var scores = d3.csv("avg_scores_by_country_complete.csv", function(data) {
-		dataset = data.map(function(d) { 
-			return [ ["country"], 
-					 +d["math_avg"], 
-					 +d["reading_avg"], 
-					 +d["science_avg"] ]; 
-			});
+	function func(data) {
+		data.map(function (d) {
+							d.escs = +d.escs;
+							d.math = +d.math;
+				});
 
-		});
-    var avg_scores = d3.csv("avg_scores_by_country_complete.csv", function(data) {
-					 data.forEach(function(d) {
-						 d.math_avg = +d.math_avg;
-						 d.reading_avg = +d.reading_avg;
-						 d.science_avg = +d.science_avg;
-						 });
-					 console.log(data[40]);
-					});
-					
-	function color_scale(data) {
-			var colors = ["#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"]
-			
-			var score_extent = d3.extent(data, function(d) {
-				return d.values['math_avg'];
-			});
-
-			
-			var score_scale = d3.scale.quantile()
-						   .domain(score_extent)
-						   .range(colors);
-			
-			return score_scale
-		}
+		"use strict"
+		var margin = 75
+		width = 600 - margin
+		height = 400 - margin
 		
-	console.log(color_scale(avg_scores));
+		var radius = 3
+		
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width", width + margin)
+					.attr("height", height + margin)
+					.append('g')
+					.attr('class', 'chart');
+					
+		d3.select('svg')
+		  .selectAll('circle')
+		  .data(data)
+		  .enter()
+		  .append('circle')
+		  
+          var escs_extent = d3.extent(data, function(d) {
+			  return d['escs'];
+		  });
+		  
+		  var score_extent = d3.extent(data, function(d) {
+			  return d['math'];
+		  });
+          
+          var escs_scale = d3.scale.linear()
+			.range([margin, width])
+			.domain(escs_extent);
+          
+          var score_scale = d3.scale.linear()
+			.range([height, margin])
+			.domain(score_extent);
+          
+          var escs_axis = d3.svg.axis()
+			.scale(escs_scale);
+		
+		  var score_axis = d3.svg.axis()
+			.scale(score_scale)
+			.orient("left");
+			
+		  // append svg to page corresponding to the d3 x-axis
+		  d3.select("svg")
+			.append('g')
+			.attr('class', 'x axis')
+			.attr('transform', "translate(0," + height + ")")
+			.call(escs_axis);
+		  
+		  // append svg to page corresponding to the d3 y-axis	
+		  d3.select("svg")
+			.append('g')
+			.attr('class', 'y axis')
+			.attr('transform', "translate(" + margin + ",0)")
+			.call(score_axis);
+			
+		  d3.selectAll('circle')
+              .attr('cx', function(d) {
+                  return escs_scale(d['escs']);
+              })
+              .attr('cy', function(d) {
+                  return score_scale(d['math']);
+              })
+              .attr('r', radius)
+              .attr('fill', 'blue');
+		
+
+		
+	}
+
+
+	d3.csv("US_quantiles.csv", func)
     
     
     </script>

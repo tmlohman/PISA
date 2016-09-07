@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.9.0/d3-legend.js"></script>
   
     <body>
 
@@ -16,7 +17,6 @@
     <script type="text/javascript">  
   		
         function draw(geo_data) {
-			console.log("Drawing map for - " + choice);
 	        "use strict";
 	        // draw the map
 	        var margin = 75,
@@ -31,8 +31,8 @@
 	            .attr('class', 'map');
 	       
 	        var projection = d3.geo.mercator()
-								   .scale(130)
-								   .translate([width/2, height/1.3]);
+								   .scale(160)
+								   .translate([width/3, height/1.5]);
 	        
 	        var path = d3.geo.path().projection(projection);
 	
@@ -47,7 +47,8 @@
                          .append('svg:title')
                          .text(function(d) {
 						        return d.properties.name
-					         });
+					         })
+					     .append('svg:legend');
 					         
 				d3.csv("avg_scores_by_country_complete3.csv", pick_color)	
 		}
@@ -78,6 +79,7 @@
 					var score_scale = d3.scale.quantile()
 									   .domain(score_extent)
 									   .range(colors);
+
 					
 					// create object that pairs countries with correct color		
 					var color_assignments = {};
@@ -118,16 +120,43 @@
 					svg.selectAll('path')
                        .style('fill', update_color)
                        .on('click', on_click)
+                       
                     
                     svg.selectAll('title')
 					   .text(update_score)
- 
+					
+					// draw legend
+					var min_score = score_extent[0].toFixed(0)
+					var max_score = score_extent[1].toFixed(0)
+					color_scale = {}
+					for (var i = min_score; i < max_score; i++) {
+						color_scale[i] = score_scale(i)
+						if (color_scale[i-1] == color_scale[i]) {
+							delete color_scale[i-1];
+						}
+					}
+					
+
+					
+					var svg = d3.select("svg");
+					
+					svg.append("g")
+					  .attr("class", "legendQuant")
+					  .attr("transform", "translate(20,20)");
+					
+					var legend = d3.legend.colors()
+					  .labelFormat(d3.format(".2f"))
+					  .useClass(true)
+					  .scale(score_scale);
+					
+					svg.select(".legendQuant")
+					  .call(legend);
+						
 				}
     
 		
 	function redraw(c) {
 		choice = c;
-		console.log("Choice - " + choice);
 		d3.csv("avg_scores_by_country_complete3.csv", pick_color)
 	}
 	
@@ -136,5 +165,6 @@
 
 
     </script>
+    
 </body>
 </html>
