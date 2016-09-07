@@ -9,8 +9,11 @@
     
 	function func(data) {
 		data.map(function (d) {
+							d.prob = +d.prob;
 							d.escs = +d.escs;
 							d.math = +d.math;
+							d.reading = +d.reading;
+							d.science = +d.science;
 				});
 
 		"use strict"
@@ -18,7 +21,7 @@
 		width = 600 - margin
 		height = 400 - margin
 		
-		var radius = 3
+		var radius = 5
 		
 		var svg = d3.select("body")
 					.append("svg")
@@ -29,29 +32,28 @@
 					
 		d3.select('svg')
 		  .selectAll('circle')
-		  .data(data)
+		  .data(data.filter(function(d) { return d.country == country }))
 		  .enter()
-		  .append('circle')
+		  .append('circle') 
 		  
+		  
+		  // horizontal axis
           var escs_extent = d3.extent(data, function(d) {
 			  return d['escs'];
 		  });
-		  
-		  var score_extent = d3.extent(data, function(d) {
-			  return d['math'];
-		  });
-          
-          var escs_scale = d3.scale.linear()
+		  var escs_scale = d3.scale.linear()
 			.range([margin, width])
 			.domain(escs_extent);
-          
+		  var escs_axis = d3.svg.axis()
+			.scale(escs_scale);
+		  
+		  // vertical axis
+		  var score_extent = d3.extent(data, function(d) {
+			  return d[subject];
+		  });
           var score_scale = d3.scale.linear()
 			.range([height, margin])
 			.domain(score_extent);
-          
-          var escs_axis = d3.svg.axis()
-			.scale(escs_scale);
-		
 		  var score_axis = d3.svg.axis()
 			.scale(score_scale)
 			.orient("left");
@@ -75,17 +77,16 @@
                   return escs_scale(d['escs']);
               })
               .attr('cy', function(d) {
-                  return score_scale(d['math']);
+                  return score_scale(d[subject]);
               })
               .attr('r', radius)
               .attr('fill', 'blue');
-		
-
-		
+			
 	}
+	country = "South Korea"
+	subject = "math"
 
-
-	d3.csv("US_quantiles.csv", func)
+	d3.csv("quintiles.csv", func)
     
     
     </script>
