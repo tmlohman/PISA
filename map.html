@@ -3,9 +3,20 @@
 <head>
   <meta charset="utf-8">
   <script src="http://d3js.org/d3.v3.min.js"></script>
+  
+    <body>
+
+	<form name = "chooseSubject">
+	  <input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
+	  <input type="radio" name="subject" value="reading" onchange="redraw('reading');"> Reading<br>
+	  <input type="radio" name="subject" value="science", onchange="redraw('science');"> Science
+	</form>
+
+	
     <script type="text/javascript">  
-		
+  		
         function draw(geo_data) {
+			console.log("Drawing map for - " + choice);
 	        "use strict";
 	        // draw the map
 	        var margin = 75,
@@ -37,28 +48,42 @@
                          .text(function(d) {
 						        return d.properties.name
 					         });
-    
-				function pick_color(data) {
+					         
+				d3.csv("avg_scores_by_country_complete3.csv", pick_color)	
+		}
+		
+	function pick_color(data) {
+		var svg = d3.select("body")
 					data.map(function (d) {
-							d.math_avg = +d.math_avg;
-							d.reading_avg = +d.reading_avg;
-							d.science_avg = +d.science_avg;
+							d.math = +d.math;
+							d.reading = +d.reading;
+							d.science = +d.science;
 					})
 					
-					var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];		
+					if (choice == "math") {
+						var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
+					}
+					if (choice == "reading") {
+						var colors = ["#edf8e9","#bae4b3","#74c476","#31a354","#006d2c"];
+					}
+					if (choice == "science") {
+						var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"]
+					}
+						
+								
 					var score_extent = d3.extent(data, function(d) {
-							return d.math_avg;
+							return d[choice];
 						});
 						
 					var score_scale = d3.scale.quantile()
 									   .domain(score_extent)
 									   .range(colors);
-							
-					var color_assignments = {};
 					
+					// create object that pairs countries with correct color		
+					var color_assignments = {};
 					var l = data.length;
 					for (var i = 0; i < l; i++) {
-						color_assignments[data[i].country] = score_scale(data[i].math_avg);
+						color_assignments[data[i].country] = score_scale(data[i][choice]);
 					}
 					
 					function update_color(d) {
@@ -68,37 +93,48 @@
 							return 'white'
 						}
 					}
-					var math_scores = {};
 					
+					// create object that pairs countries with math scores
+					var scores = {};
 					for (var i = 0; i < l; i++) {
-						math_scores[data[i].country] = data[i].math_avg;
+						scores[data[i].country] = data[i][choice].toFixed(0);
 					}
 					
 					function update_score(d) {
 						if (d.properties.name in color_assignments) {
 							return [d.properties.name,
-							math_scores[d.properties.name]];
+							scores[d.properties.name]];
 						} else {
 							return [d.properties.name, "no data available"];
 						}
 					}
 					
+					// click code
+					function on_click(d) {
+						window.open(height = 300, width = 300);
+					}
 
-										
+					// update colors, hover-text					
 					svg.selectAll('path')
                        .style('fill', update_color)
+                       .on('click', on_click)
                     
                     svg.selectAll('title')
 					   .text(update_score)
-                       
-                       
+ 
 				}
-			
-				d3.csv("avg_scores_by_country_complete2.csv", pick_color)	
-			
-		}
-           
+    
+		
+	function redraw(c) {
+		choice = c;
+		console.log("Choice - " + choice);
+		d3.csv("avg_scores_by_country_complete3.csv", pick_color)
+	}
+	
+	choice = "math"
 	d3.json("world_countries.json", draw);
+
+
     </script>
 </body>
 </html>
