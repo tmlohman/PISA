@@ -3,8 +3,44 @@
 <head>
   <meta charset="utf-8">
   <script src="http://d3js.org/d3.v3.min.js"></script>
+  <style type="text/css">
+	  
+	  
+	#outer {
+		position: fixed;
+		width: 100%;
+		height: 100%;
+	}
+	
+	#map_div {
+	    float: left;
+	    width: 64%;
+	    height: 100%;
+	    border: 1px solid red;
+	}
+	#scatter_div {
+	    float: right;
+	    width: 35%;
+	    height: 50%;
+	    border: 1px solid red;
+	} 
+	#text_div {
+		float: right;
+	    width: 35%;
+	    height: 50%;
+	    border: 1px solid red;
+	}  
+	
+
+	</style>
   
     <body>
+	<div id = outer>
+		<div id = map_div></div>
+		<div id = scatter_div></div>
+		<div id = text_div></div>
+	</div>
+
 
 	<form name = "chooseSubject">
 	  <input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
@@ -14,6 +50,16 @@
 
 	
     <script type="text/javascript">  
+		var map_div = document.getElementById('map_div'); 
+		var map_width = map_div.offsetWidth;
+		var map_height = map_div.offsetHeight;
+		var map_margin = 75;
+		console.log(map_width);
+		
+		var scatter_div = document.getElementById('scatter_div'); 
+		var scatter_width = scatter_div.offsetWidth;
+		var scatter_height = scatter_div.offsetHeight;
+		var scatter_margin = 50;
   		
         function draw(geo_data) {
 	        "use strict";
@@ -139,6 +185,7 @@
 	}
 	
 	function add_scatter(data) {
+		"use strict"
 		data.map(function (d) {
 							d.prob = +d.prob;
 							d.escs = +d.escs;
@@ -147,13 +194,7 @@
 							d.science = +d.science;
 				});
 
-		"use strict"
-
-			
-		var radius = 5
-		
-		
-		var svg = d3.select("body")
+		var scatter = d3.select("body")
 					.append("svg")
 					.attr("width", width + margin)
 					.attr("height", height + margin)
@@ -194,11 +235,12 @@
 	}
 	
 	
-		// global variables
+    // global variables
 	var margin = 75,
 	    width = 1500 - margin,
 	    height = 730 - margin;
 	var radius = 5
+	
 	// horizontal axis
 	var x_extent = [-2.75, 3.69];
 	var x_scale = d3.scale.linear()
