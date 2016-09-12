@@ -11,7 +11,6 @@
 		width: 100%;
 		height: 100%;
 	}
-	
 	#map_div {
 	    float: left;
 	    width: 64%;
@@ -30,8 +29,6 @@
 	    height: 50%;
 	    border: 1px solid red;
 	}  
-	
-
 	</style>
   
     <body>
@@ -54,7 +51,8 @@
 		var map_width = map_div.offsetWidth;
 		var map_height = map_div.offsetHeight;
 		var map_margin = 75;
-		console.log(map_width);
+		var map_scale = map_width / 6.5;
+
 		
 		var scatter_div = document.getElementById('scatter_div'); 
 		var scatter_width = scatter_div.offsetWidth;
@@ -63,21 +61,23 @@
   		
         function draw(geo_data) {
 	        "use strict";
+	        // set dimensions
+	        var map_div = document.getElementById('map_div'); 
+			var map_width = map_div.offsetWidth;
+			var map_height = map_div.offsetHeight;
+			var map_margin = 75;
+	    
 	        // draw the map
-	        var margin = 75,
-	            width = 1500 - margin,
-	            height = 730 - margin;
-	
-	        var svg = d3.select("body")
+	        var svg = d3.select("#map_div")
 	            .append("svg")
-	            .attr("width", width + margin)
-	            .attr("height", height + margin)
+	            .attr("width", map_width + map_margin)
+	            .attr("height", map_height + map_margin)
 	            .append('g')
 	            .attr('class', 'map');
 	       
 	        var projection = d3.geo.mercator()
-								   .scale(160)
-								   .translate([width/3, height/1.5]);
+								   .scale(map_scale)
+								   .translate([map_width/2, map_height/1.8]);
 	        
 	        var path = d3.geo.path().projection(projection);
 	
@@ -99,7 +99,7 @@
 		}
 		
 	function pick_color(data) {
-		var svg = d3.select("body")
+		var svg = d3.select("#map_div")
 		data.map(function (d) {
 				d.math = +d.math;
 				d.reading = +d.reading;
@@ -159,7 +159,7 @@
 		// click code
 		function on_click(d) {
 			country = d.properties.name;
-			d3.csv('quintiles.csv', add_scatter);
+			//d3.csv('quintiles.csv', add_scatter);
 		}
 
 		// update colors, hover-text					
@@ -234,7 +234,7 @@
 			
 	}
 	
-	
+	/*
     // global variables
 	var margin = 75,
 	    width = 1500 - margin,
@@ -257,6 +257,7 @@
 	var score_axis = d3.svg.axis()
 		.scale(y_scale)
 		.orient("left");
+	*/
     		
 	function redraw(c) {
 		subject = c;
