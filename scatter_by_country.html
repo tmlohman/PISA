@@ -53,7 +53,7 @@
 			  return d[subject];
 		  });
           var score_scale = d3.scale.linear()
-			.range([height, margin])
+			.range([height/2, height])
 			.domain(score_extent);
 		  var score_axis = d3.svg.axis()
 			.scale(score_scale)
