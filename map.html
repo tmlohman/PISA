@@ -3,9 +3,7 @@
 <head>
   <meta charset="utf-8">
   <script src="http://d3js.org/d3.v3.min.js"></script>
-    
-
-
+  
     <body>
 
 	<form name = "chooseSubject">
@@ -16,11 +14,14 @@
 
 	
     <script type="text/javascript">  
-	"use strict";
   		
-    function draw(geo_data) {
+        function draw(geo_data) {
 	        "use strict";
 	        // draw the map
+	        var margin = 75,
+	            width = 1500 - margin,
+	            height = 730 - margin;
+	
 	        var svg = d3.select("body")
 	            .append("svg")
 	            .attr("width", width + margin)
@@ -39,7 +40,7 @@
 						 .enter()
 						 .append('path')
 						 .attr('d', path)
-						 .style('fill', 'white')	 
+						 .style('fill', '#f7fbff')	 
 						 .style('stroke', 'black')
 						 .style('stroke-width', 0.5)
                          .append('svg:title')
@@ -48,19 +49,16 @@
 					         })
 					     .append('svg:legend');
 				         
-				d3.csv("avg_scores_by_country_complete3.csv", pick_color)
-				
-				
-				d3.csv("quintiles.csv", add_scatter)	
+				d3.csv("avg_scores_by_country_complete3.csv", pick_color)	
 		}
-	// color code countries and add scores to hovertext	
+		
 	function pick_color(data) {
 		var svg = d3.select("body")
 		data.map(function (d) {
 				d.math = +d.math;
 				d.reading = +d.reading;
 				d.science = +d.science;
-		});
+		})
 		
 		if (subject == "math") {
 			var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
@@ -108,41 +106,39 @@
 				return [d.properties.name,
 				scores[d.properties.name]];
 			} else {
-				return [d.properties.name, " no data available"];
+				return [d.properties.name, "no data available"];
 			}
 		}
 		
 		// click code
 		function on_click(d) {
-			var country = d.properties.name;
+			country = d.properties.name;
 			d3.csv('quintiles.csv', add_scatter);
-			console.log(country);
 		}
 
 		// update colors, hover-text					
 		svg.selectAll('path')
 		   .style('fill', update_color)
-		   .on('click', on_click);
+		   .on('click', on_click)
 		   
+		
 		svg.selectAll('title')
-		   .text(update_score);
+		   .text(update_score)
 		
 		// draw legend
-		var min_score = score_extent[0].toFixed(0);
-		var max_score = score_extent[1].toFixed(0);
-		var color_scale = {};
+		var min_score = score_extent[0].toFixed(0)
+		var max_score = score_extent[1].toFixed(0)
+		color_scale = {}
 		for (var i = min_score; i < max_score; i++) {
 			color_scale[i] = score_scale(i)
 			if (color_scale[i-1] == color_scale[i]) {
 				delete color_scale[i-1];
-			};
-		};
+			}
+		}
+								
+	}
 	
-	};
-	
-	// draw inital scatterplot
 	function add_scatter(data) {
-		var country = "USA";
 		data.map(function (d) {
 							d.prob = +d.prob;
 							d.escs = +d.escs;
@@ -151,22 +147,35 @@
 							d.science = +d.science;
 				});
 
+		"use strict"
+
+			
+		var radius = 5
+		
+		
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width", width + margin)
+					.attr("height", height + margin)
+					.append('g')
+					.attr('class', 'chart');
+					
 		d3.select('svg')
 		  .selectAll('circle')
 		  .data(data.filter(function(d) { return d.country == country }))
 		  .enter()
 		  .append('circle') 
-		  .attr('class', 'chart');
-		
-		    // append svg to page corresponding to the d3 x-axis
-		d3.select('chart')
+		  
+			
+		  // append svg to page corresponding to the d3 x-axis
+		  d3.select("svg")
 			.append('g')
 			.attr('class', 'x axis')
 			.attr('transform', "translate(0," + height + ")")
 			.call(escs_axis);
 		  
 		  // append svg to page corresponding to the d3 y-axis	
-		d3.select('chart')
+		  d3.select("svg")
 			.append('g')
 			.attr('class', 'y axis')
 			.attr('transform', "translate(" + 2.2*width/3 + ",0)")
@@ -181,39 +190,11 @@
               })
               .attr('r', radius)
               .attr('fill', 'blue');
-              						
+			
 	}
-	          
-    function update_scatter(data) {
-      // select matching data
-      var data_upd = d3.select('svg')
-                       .selectAll('circle')
-                       .data(data.filter(function(d) { return d.country == country }));
-      data_ent = data_upd.enter();
-      	
-      // old circles, removed
-      data_upd.remove();
-	
-      // new circles, added
-  	  data_ent.append('circle')
-  	    .attr("id", function(d) { return d.group })
-	    .attr('cx', function(d) {
-                  return escs_scale(d['escs']);
-              })
-        .attr('cy', function(d) {
-                  return score_scale(d[subject])
-              })
-        .attr('r', 5)
-        .attr('fill', 'red');
-        
-    } // end new_draw() function		
 	
 	
-	
-	
-	
-	
-	// global variables
+		// global variables
 	var margin = 75,
 	    width = 1500 - margin,
 	    height = 730 - margin;
@@ -234,17 +215,14 @@
 	var score_axis = d3.svg.axis()
 		.scale(y_scale)
 		.orient("left");
-
     		
 	function redraw(c) {
 		subject = c;
-		d3.csv("avg_scores_by_country_complete3.csv", pick_color);
-		d3.csv("quintiles.csv", add_scatter);
+		d3.csv("avg_scores_by_country_complete3.csv", pick_color)
 	}
 	
-	var subject = "math"
+	subject = "math"
 	d3.json("world_countries.json", draw);
-
 
 
     </script>
