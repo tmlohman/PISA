@@ -94,6 +94,7 @@
 				d.science = +d.science;
 		})
 		
+		// color code by subject
 		if (subject == "math") {
 			var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
 		}
@@ -101,7 +102,7 @@
 			var colors = ["#edf8e9","#bae4b3","#74c476","#31a354","#006d2c"];
 		}
 		if (subject == "science") {
-			var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"]
+			var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"];
 		}
 			
 					
@@ -168,13 +169,21 @@
 			if (color_scale[i-1] == color_scale[i]) {
 				delete color_scale[i-1];
 			}
-		}
-		d3.csv('quintiles.csv', add_scatter);	
+		}	
 	}
 	
 	function add_scatter(data) {
 		"use strict"
 		var country = "USA"
+		if (subject == "math") {
+			var color = "#08519c";
+		}
+		if (subject == "reading") {
+			var color = "#006d2c";
+		}
+		if (subject == "science") {
+			var color = "#a63603";
+		}
 		data.map(function (d) {
 							d.prob = +d.prob;
 							d.escs = +d.escs;
@@ -218,21 +227,23 @@
                   return y_scale(d[subject]);
                 })
                .attr('r', radius)
-               .attr('fill', 'blue');
+               .attr('fill', color);
 		
 	}
 	
 	function update_scatter(data) {
 		var scatter = d3.select("#scatter_div")
 
+
 		// select matching data
         var data_upd = scatter.select('svg')
-							  .selectAll('circle')
+                              .selectAll('circle')
                               .data(data.filter( function(d) { 
-								  return d['country'] == country} ), 
-                                  function(d) { return d.country; });
+								  return d['country'] == country}),  
+								  function(d) { return d.row; });
 
 		data_ent = data_upd.enter();
+		console.log(data_ent);
 
       	
         // old circles, removed
@@ -242,6 +253,8 @@
   	    data_ent.append('circle')
 		  	    //.attr('id', function(d) { return d.country })
 			    .attr('cx', function(d) {
+					      console.log(d['escs']);
+						  console.log(x_scale(d['escs']));
 		                  return x_scale(d['escs']);
 		                })
 		               .attr('cy', function(d) {
@@ -252,6 +265,17 @@
 		
 		
 	}
+	function clear_scatter(data) {
+		var scatter = d3.select("#scatter_div")
+		
+		var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data)
+                              
+		data_upd.remove();
+	}
+		
+	
 	
     // global variables
 	// set scatter plot dimensions
@@ -262,18 +286,18 @@
 	var radius = 5
 	
 	// horizontal axis
-	var x_extent = [-2.75, 3.69];
+	var x_extent = [-2.75, 3.70];
 	var x_scale = d3.scale.linear()
-		.range([0, scatter_width - 2*scatter_margin])
-		.domain(x_extent);
+		.domain(x_extent)
+		.range([scatter_margin, scatter_width - scatter_margin]);
 	var escs_axis = d3.svg.axis()
 		.scale(x_scale);
 	  
 	// vertical axis
 	var y_extent = [312, 672];
 	var y_scale = d3.scale.linear()
-		.range([scatter_height - scatter_margin, scatter_margin])
-		.domain(y_extent);
+		.domain(y_extent)
+		.range([scatter_height - scatter_margin, scatter_margin]);
 	var score_axis = d3.svg.axis()
 		.scale(y_scale)
 		.orient("left");
@@ -282,11 +306,12 @@
 	function redraw(c) {
 		subject = c;
 		d3.csv("avg_scores_by_country_complete3.csv", pick_color);
-		d3.csv('quintiles.csv', add_scatter);
+		d3.csv('quintiles.csv', clear_scatter);
 	}
 	
 	subject = "math"
 	d3.json("world_countries.json", draw);
+	d3.csv('quintiles.csv', add_scatter);
 
 
     </script>
