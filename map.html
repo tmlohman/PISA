@@ -147,9 +147,14 @@
 		// click code
 		function on_click(d) {
 			country = d.properties.name;
-			console.log(country);
-			d3.csv('quintiles.csv', update_scatter);
-		}
+			if (selected_countries.includes(country)) {
+				var i = selected_countries.indexOf(country);
+				selected_countries.splice(i, 1);
+			} else {
+				selected_countries.push(country);
+			};
+			d3.csv('quintiles.csv', update_scatter)
+		};
 
 		// update colors, hover-text					
 		svg.selectAll('path')
@@ -172,18 +177,11 @@
 		}	
 	}
 	
+	// draws scatter plot axis
 	function add_scatter(data) {
 		"use strict"
 		var country = "USA"
-		if (subject == "math") {
-			var color = "#08519c";
-		}
-		if (subject == "reading") {
-			var color = "#006d2c";
-		}
-		if (subject == "science") {
-			var color = "#a63603";
-		}
+
 		data.map(function (d) {
 							d.prob = +d.prob;
 							d.escs = +d.escs;
@@ -209,7 +207,7 @@
 		//append x-axis
 		scatter.append('g')
 			   .attr('class', 'x axis')
-			   .attr('transform', "translate("+ scatter_margin +" ," + x_translate + ")")
+			   .attr('transform', "translate(0 ," + x_translate + ")")
 			   .call(escs_axis);
 		   
 		// append y-axis	
@@ -227,13 +225,38 @@
                   return y_scale(d[subject]);
                 })
                .attr('r', radius)
-               .attr('fill', color);
-		
+               .attr('fill', 'blue');
+               
+		d3.csv('quintiles.csv', clear_scatter);
 	}
 	
+	// updates scatter plot when country is clicked
 	function update_scatter(data) {
 		var scatter = d3.select("#scatter_div")
-
+		console.log(selected_countries);
+		
+		// drop first country if more than 5 are selected
+		if (selected_countries.length > 5) {
+			drop_country = selected_countries[0];
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data.filter( function(d) { 
+								  return d['country'] == drop_country}),  
+								  function(d) { return d.row; });
+			data_upd.remove();
+			selected_countries.splice(0, 1);
+			var first_color = scatter_colors[0];
+			scatter_colors.splice(0,1);
+			scatter_colors.push(first_color);
+		};	
+				
+		console.log(selected_countries);
+		
+		var i = selected_countries.indexOf(country);
+		console.log(i);
+		
+		
+		
 
 		// select matching data
         var data_upd = scatter.select('svg')
@@ -243,8 +266,6 @@
 								  function(d) { return d.row; });
 
 		data_ent = data_upd.enter();
-		console.log(data_ent);
-
       	
         // old circles, removed
         data_upd.remove();
@@ -253,15 +274,13 @@
   	    data_ent.append('circle')
 		  	    //.attr('id', function(d) { return d.country })
 			    .attr('cx', function(d) {
-					      console.log(d['escs']);
-						  console.log(x_scale(d['escs']));
 		                  return x_scale(d['escs']);
 		                })
 		               .attr('cy', function(d) {
 		                  return y_scale(d[subject]);
 		                })
 		        .attr('r', 5)
-		        .attr('fill', 'red');
+		        .attr('fill', scatter_colors[i]);
 		
 		
 	}
@@ -278,6 +297,9 @@
 	
 	
     // global variables
+    var selected_countries = [];
+    var scatter_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e"];
+    
 	// set scatter plot dimensions
 	var scatter_div = document.getElementById('scatter_div'); 
 	var scatter_width = scatter_div.offsetWidth;
