@@ -19,9 +19,15 @@
 	    border: 1px solid red;
 	}
 		#map_legend_div {
-	    float: bottom;
-	    width: 20%;
-	    height: 20%;
+	    float: right;
+	    width: 200px;
+	    height: 150px;
+	    border: 1px solid red;
+	}
+		#radio_div {
+	    float: left;
+	    width: 150px;
+	    height: 120px;
 	    border: 1px solid red;
 	}
 	#legend_div {
@@ -45,21 +51,28 @@
 	#legendQuant {
 		color: 'white';
 	}
+	.text {
+		font-family: arial;
+	}
 	</style>
   
     <body>
 	<div id = outer>
-		<div id = map_div>
+		<div id = map_div class = "text">
+			<div id = "radio_div" class = "text">
+				Choose a subject:
 			<form name = "chooseSubject">
 			<input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
 			<input type="radio" name="subject" value="reading" onchange="redraw('reading');"> Reading<br>
 			<input type="radio" name="subject" value="science", onchange="redraw('science');"> Science
-			</form>
-			<div id = map_legend_div></div>
+			</form></div>
+			<div id = map_legend_div class = "text">
+				Average scores by country:
+			</div>
 		</div>
-		<div id = legend_div></div>
-		<div id = scatter_div></div>
-		<div id = text_div></div>
+		<div id = legend_div class = "text"></div>
+		<div id = scatter_div class = "text"></div>
+		<div id = text_div class = "text" ></div>
 	</div>
 
     <script type="text/javascript">  
@@ -84,7 +97,7 @@
        
         var projection = d3.geo.mercator()
 							   .scale(map_scale)
-							   .translate([map_width/2, map_height/1.8]);
+							   .translate([map_width/2, map_height/1.9]);
         
         var path = d3.geo.path().projection(projection);
 
@@ -201,13 +214,13 @@
 		function on_click(d) {
 			if (d.properties.name in color_assignments) {
 				country = d.properties.name;
-				console.log(country);
+				/*
 				if (selected_countries.includes(country)) {
 					var i = selected_countries.indexOf(country);
 					selected_countries.splice(i, 1);
 				} else {
 					selected_countries.push(country);
-				};
+				}; */
 				d3.csv('quintiles.csv', update_scatter);
 			}
 		};
@@ -306,28 +319,36 @@
 	// updates scatter plot when country is clicked
 	function update_scatter(data) {
 		var scatter = d3.select("#scatter_div")
+		
+		// keep track of colors
+		var new_country = true;
+		for (var i=0; i < country_colors.length; i++) {
+	        if (country_colors[i].country === country) {
+				new_country = false;
+				break;
+			}
+		}
+		
+		if (new_country == true) {
+			add_country = {'country':country, 'color': unused_colors[0]};
+			country_colors.push(add_country);
+			unused_colors.splice(0,1);
+        }		
 
 		// drop first country and update color scale if more than 5 are selected
-		if (selected_countries.length > 5) {
-			drop_country = selected_countries[0];
+		if (country_colors.length > 5) {
+			drop_country = country_colors[0].country;
 			var data_upd = scatter.select('svg')
                               .selectAll('circle')
                               .data(data.filter( function(d) { 
 								  return d['country'] == drop_country}),  
 								  function(d) { return d.row; });
 			data_upd.remove();
-			selected_countries.splice(0, 1);
-			var first_color = scatter_colors[0];
-			scatter_colors.splice(0,1);
-			scatter_colors.push(first_color);
+			country_colors[5].color = country_colors[0].color
+			country_colors.splice(0,1);
 		};	
 		
-		used_colors = scatter_colors.slice(0, selected_countries.length);
-		console.log(selected_countries);
-		console.log(used_colors);
-
 		// select matching data
-		var i = selected_countries.indexOf(country);
         var data_upd = scatter.select('svg')
                               .selectAll('circle')
                               .data(data.filter( function(d) { 
@@ -336,10 +357,22 @@
 
 		data_ent = data_upd.enter();
       	
-        // old circles, removed
+        // remove selected country from graph and country_colors
         data_upd.remove();
+        if (new_country == false) {
+			unused_colors.push(country_colors[i].color);
+			country_colors.splice(i,1);
+		}
+		
+		// update arrays of countries and colors for scale
+		selected_countries = []
+		used_colors = []
+		for (var j = 0; j < country_colors.length; j++) {	
+			used_colors.push(country_colors[j].color);			
+			selected_countries.push(country_colors[j].country);
+		}			
 	
-        // new circles, added
+        // add selected country to graph
   	    data_ent.append('circle')
 			    .attr('cx', function(d) {
 		                  return x_scale(d['escs']);
@@ -348,7 +381,7 @@
 		                  return y_scale(d[subject]);
 		                })
 		        .attr('r', 5)
-		        .attr('fill', scatter_colors[i]);
+		        .attr('fill', used_colors[used_colors.length-1]);
 		
 		// draw the updated legend
 		var ordinal = d3.scale.ordinal()
@@ -386,9 +419,10 @@
 	
     // global variables
 		// keep track of what is on scatter plot currently
-	    var selected_countries = [];
-	    var used_colors = []
-	    var scatter_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
+	    var country_colors = [];
+	    var unused_colors = ['red', 'blue', 'yellow', 'purple', 'green'];
+	    //var scatter_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
+	    var scatter_colors = ['red', 'blue', 'yellow', 'purple', 'green'];
 	    
 		// set scatter plot dimensions
 		var scatter_div = document.getElementById('scatter_div'); 
