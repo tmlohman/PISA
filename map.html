@@ -310,12 +310,10 @@
         var scatter_legend = d3.select("#legend_div")
 							   .append("svg");
 						   
-        var ordinal = d3.scale.ordinal()
-						.domain(["USA"])
+        var empty_scale = d3.scale.ordinal()
+						.domain([])
 						.range([]);
-
 		
-
 		scatter_legend.append("g")
 					  .attr("class", "legendOrdinal")
 					  .attr("transform", "translate(" + legend_margin +", "+ legend_margin+")");
@@ -323,18 +321,37 @@
 		var legendOrdinal = d3.legend.color()  
 		                             .shape("path", d3.svg.symbol().type("circle").size(100)())
 		                             .shapePadding(10)
-		                             .scale(ordinal);
+		                             .scale(empty_scale);
 		                            
 		scatter_legend.select(".legendOrdinal")
 					  .attr('id', "scatter_legend")
 					  .call(legendOrdinal);
-          
-		d3.csv('quintiles4.csv', clear_scatter);
+        
+		d3.csv('quintiles4.csv', update_scatter);
 	}
 	
 	// updates scatter plot when country is clicked
 	function update_scatter(data) {
 		var scatter = d3.select("#scatter_div")
+		
+		// reset scatter plot if called for
+		if (country == "reset") {
+			var scatter = d3.select('#scatter_div')
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data)  
+                              
+			data_upd.remove();
+			country_colors = [];
+			unused_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
+			scatter.select('#ylabel')
+			   .text("Median " + subject + " Score");
+			var empty_scale = d3.scale.ordinal()
+						.domain([])
+						.range([]);
+			draw_legend(empty_scale);
+			return;
+		}	
 		
 		// keep track of colors
 		var new_country = true;
@@ -402,16 +419,17 @@
 					 .text(function(d) {
 					        return [d.country, d.prob];
 				         });
-				         
-		// update y axis
-		scatter.select('#ylabel')
-			   .text("Median " + subject + " Score");
-		
+			
 		// draw the updated legend
 		var ordinal = d3.scale.ordinal()
 						.domain(selected_countries)
 						.range(used_colors);
-
+		draw_legend(ordinal);
+	
+	}
+	
+	// draw scatter plot legend
+	function draw_legend(scale) {
 		var scatter_legend = d3.select("#legend_div");
 
 		scatter_legend.append("g")
@@ -421,25 +439,12 @@
 		var legendOrdinal = d3.legend.color()  
 		                             .shape("path", d3.svg.symbol().type("circle").size(100)())
 		                             .shapePadding(10)
-		                             .scale(ordinal);
+		                             .scale(scale);
                            
 		scatter_legend.select(".legendOrdinal")
 					  .attr('id', "scatter_legend")
 					  .call(legendOrdinal);
-		
-	}
-
-	// clear all data from scatter plot
-	function clear_scatter(data) {
-		var scatter = d3.select('#scatter_div')
-		var data_upd = scatter.select('svg')
-                              .selectAll('circle')
-                              .data(data)  
-                              
-		data_upd.remove();
-
-	}
-			
+		}		
 	
     // global variables
 		// keep track of what is on scatter plot currently
@@ -475,16 +480,13 @@
 		var legend_width = legend_div.offsetWidth;
 		var legend_height = legend_div.offsetHeight;
 		var legend_margin = 25;
-		
-
-
-	
 	
 
 	function redraw(c) {
 		subject = c;
 		d3.csv("median_scores_by_country_complete.csv", pick_color);
-		d3.csv('quintiles4.csv', clear_scatter);
+		country = "reset";
+		d3.csv('quintiles4.csv', update_scatter);
 	}
 	
 	function button_click() {
@@ -495,7 +497,8 @@
 
 	
 	// initial function calls
-	subject = "math"
+	var subject = "math"
+	var country = "reset"
 	d3.json("world_countries.json", draw);
 	d3.csv('quintiles4.csv', add_scatter);
 
