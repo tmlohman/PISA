@@ -22,6 +22,7 @@
 	    float: right;
 	    width: 200px;
 	    height: 150px;
+	    text-align: right;
 	    border: 1px solid red;
 	}
 		#radio_div {
@@ -36,6 +37,9 @@
 	    height: 20%;
 	    border: 1px solid red;
 	} 
+		#clear_button {
+			float: right;
+		}
 	#scatter_div {
 	    float: right;
 	    width: 35%;
@@ -48,8 +52,9 @@
 	    height: 40%;
 	    border: 1px solid red;
 	}  
-	#legendQuant {
+	.legendQuant {
 		color: 'white';
+		text-align: 'right';
 	}
 	.text {
 		font-family: arial;
@@ -70,9 +75,21 @@
 				Median scores by country:
 			</div>
 		</div>
-		<div id = legend_div class = "text"></div>
+		<div id = legend_div class = "text">
+			<button type="button" id="clear_button" onclick="clear_scatter()">Clear scatter plot</button>
+		</div>
 		<div id = scatter_div class = "text"></div>
-		<div id = text_div class = "text" ></div>
+		<div id = text_div class = "text" >
+			<h2>How to use this visualization:</h2>
+			<ol>
+				<li>Select a subject to explore.</li>
+				<li>Hover over any country to see its name and median PISA score.</li>
+				<li>Click on any country to see how its PISA scores correlate to students' socioeconomic status (ESCS).</li>
+				<li>Click the country again to remove it from the plot. The scatter plot will display a maximum of 5 countries.</li>
+				<li>For more information on the PISA test, click <a href = "https://nces.ed.gov/surveys/pisa/pisa2012/pisa2012highlights_2.asp">here</a>. </li>
+			</ol>
+		
+		</div>
 	</div>
 
     <script type="text/javascript">  
@@ -293,7 +310,7 @@
 			   .attr("y", 25 )
 			   .attr("x", -scatter_height/3)
 			   .attr("transform", "rotate(-90)")
-			   .text("Median " + subject + " Score");
+			   .text("median " + subject + " score");
 			
 		scatter.selectAll('circle')
 			   .attr("id", function(d) { return d.country })
@@ -327,12 +344,13 @@
 					  .attr('id', "scatter_legend")
 					  .call(legendOrdinal);
         
-		d3.csv('quintiles4.csv', update_scatter);
+		clear_scatter();
 	}
 	
 	// updates scatter plot when country is clicked
 	function update_scatter(data) {
 		var scatter = d3.select("#scatter_div")
+		console.log(country)
 		
 		// reset scatter plot if called for
 		if (country == "reset") {
@@ -345,7 +363,7 @@
 			country_colors = [];
 			unused_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
 			scatter.select('#ylabel')
-			   .text("Median " + subject + " Score");
+			   .text("median " + subject + " score");
 			var empty_scale = d3.scale.ordinal()
 						.domain([])
 						.range([]);
@@ -427,6 +445,13 @@
 		draw_legend(ordinal);
 	
 	}
+
+	// clear all data from scatter plot
+	function clear_scatter() {
+		country = "reset";
+		d3.csv('quintiles4.csv', update_scatter)
+
+	}
 	
 	// draw scatter plot legend
 	function draw_legend(scale) {
@@ -498,7 +523,6 @@
 	
 	// initial function calls
 	var subject = "math"
-	var country = "reset"
 	d3.json("world_countries.json", draw);
 	d3.csv('quintiles4.csv', add_scatter);
 
