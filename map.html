@@ -42,6 +42,9 @@
 	    height: 40%;
 	    border: 1px solid red;
 	}  
+	#legendQuant {
+		color: 'white';
+	}
 	</style>
   
     <body>
@@ -141,8 +144,7 @@
 		if (subject == "science") {
 			var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"];
 		}
-			
-					
+							
 		var score_extent = d3.extent(data, function(d) {
 				return d[subject];
 			});
@@ -159,7 +161,7 @@
 		          .attr("transform", "translate(20,20)");
 		
 		var legend = d3.legend.color()
-		               .labelFormat(d3.format(".2f"))
+		               .labelFormat(d3.format(".0f"))
 		               .scale(score_scale);
 		
 		map_legend.select(".legendQuant")
@@ -275,7 +277,29 @@
                .attr('r', radius)
                .attr('fill', 'blue');
                
-               
+        // initialize empty legend
+        var scatter_legend = d3.select("#legend_div")
+							   .append("svg");
+						   
+        var ordinal = d3.scale.ordinal()
+						.domain(["USA"])
+						.range([]);
+
+		
+
+		scatter_legend.append("g")
+					  .attr("class", "legendOrdinal")
+					  .attr("transform", "translate(" + legend_margin +", "+ legend_margin+")");
+	
+		var legendOrdinal = d3.legend.color()  
+		                             .shape("path", d3.svg.symbol().type("circle").size(100)())
+		                             .shapePadding(10)
+		                             .scale(ordinal);
+		                            
+		scatter_legend.select(".legendOrdinal")
+					  .attr('id', "scatter_legend")
+					  .call(legendOrdinal);
+          
 		d3.csv('quintiles.csv', clear_scatter);
 	}
 	
@@ -325,16 +349,13 @@
 		                })
 		        .attr('r', 5)
 		        .attr('fill', scatter_colors[i]);
-		/*
+		
 		// draw the updated legend
-		d3.select('#scatter_legend').remove();
-
 		var ordinal = d3.scale.ordinal()
 						.domain(selected_countries)
 						.range(used_colors);
 
-		var scatter_legend = d3.select("#legend_div")
-							   .append("svg");
+		var scatter_legend = d3.select("#legend_div");
 
 		scatter_legend.append("g")
 					  .attr("class", "legendOrdinal")
@@ -344,23 +365,22 @@
 		                             .shape("path", d3.svg.symbol().type("circle").size(100)())
 		                             .shapePadding(10)
 		                             .scale(ordinal);
-		 
-		                           
+                           
 		scatter_legend.select(".legendOrdinal")
 					  .attr('id', "scatter_legend")
 					  .call(legendOrdinal);
-		*/
+		
 	}
 
 	// clear all data from scatter plot
 	function clear_scatter(data) {
-		var scatter = d3.select("#scatter_div")
-		
+		var scatter = d3.select('#scatter_div')
 		var data_upd = scatter.select('svg')
                               .selectAll('circle')
-                              .data(data)
+                              .data(data)  
                               
 		data_upd.remove();
+
 	}
 			
 	
