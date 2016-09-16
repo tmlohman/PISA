@@ -1,0 +1,261 @@
+---
+title: "Untitled"
+author: "Tegan Lohman"
+date: "August 29, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+
+getwd()
+
+```
+
+
+
+```{r}
+
+# Load data, clean up table, check types
+pisadata <- read.table('sample2.csv', header = TRUE, sep = ",")
+pisadict <- read.csv('pisadict2012.csv', header = FALSE)
+
+ncol(pisadata)
+nrow(pisadict)
+
+header <- t(pisadict)[1,]
+names(pisadata) <- header
+
+summary(pisadata)
+View(pisadata[502:506])
+
+str(pisadata)
+```
+
+```{r}
+
+colnames(pisadata)[colnames(pisadata)=="Country code 3-character"] <- "Country"
+
+country_groups <- group_by(pisadata, Country)
+
+ggplot(data = country_groups, aes(factor(Country))) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+Most countries have about 50 students represented in this sample, however a few are heavily over or under-represented. The United States is represented, as are several individual states. I wonder if all states have individual data in the complete data set.
+```{r}
+avg_scores_by_country <- aggregate(pisadata[, c(502, 542, 547)],
+                                   list(pisadata$Country), median)
+names(avg_scores_by_country) <- c('country', 'math', 'reading', 'science')
+ggplot(avg_scores_by_country, ) +
+  geom_point(aes(country, math), color = 'blue') +
+  geom_point(aes(country, reading), color = 'red') +
+  geom_point(aes(country, science), color = 'green') +
+  the?me(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+The scores for math, reading, and science tend to fall within a narrow range by country. In other words, countries tend to either do well in everything, or poorly in everything.
+```{r}
+scores_and_ses <- read.csv('selected_columns_sample.csv', colClasses = c('factor', 'numeric', 'numeric', 'numeric', 'numeric'))
+
+View(scores_and_ses$escs)
+
+ggplot(scores_and_ses) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+   geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+   geom_point(aes(escs, science), color = 'green', alpha = 0.2) 
+
+```
+Internationally, students from families who are better off financially score better on the math, reading, and science assessments. Does this correlation vary by country?
+```{r}
+United_States <- subset(scores_and_ses, country == 'United States of America')
+China <- subset(scores_and_ses, country == 'Macao-China')
+Germany <- subset(scores_and_ses, country == 'Germany')
+Brazil <- subset(scores_and_ses, country == 'Brazil')
+
+p1 <- ggplot(United_States) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("United States")
+
+p2 <- ggplot(Brazil) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("Brazil")
+
+p3 <- ggplot(China) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("China")
+
+p4 <- ggplot(Germany) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.2) +
+  geom_point(aes(escs, reading), color = 'red', alpha = 0.2) +
+  geom_point(aes(escs, science), color = 'green', alpha = 0.2) +
+  ggtitle("Germany")
+
+grid.arrange(p1, p2, p3, p4, ncol = 2)
+
+```
+The link between socio-economic status and test scores varies by country.
+
+```{r}
+
+scores_and_ses_complete <- read.csv('selected_columns_complete.csv', header = TRUE, colClasses = c('factor', 'numeric', 'numeric', 'numeric', 'numeric'))
+
+avg_scores_by_country_complete <- aggregate(scores_and_ses_complete[, 
+                                                                c(2, 3,4,5), ],
+                                   list(scores_and_ses_complete$country), median,
+                                   na.rm = TRUE)
+
+names(avg_scores_by_country_complete) <- c('country', 'escs', 'math_avg', 'reading_avg', 'science_avg')
+
+write.table(avg_scores_by_country_complete, 
+            file = "avg_scores_by_country_complete4.csv",
+            sep = ",")
+
+```
+
+```{r}
+
+
+ggplot(data = avg_scores_by_country_complete, aes(factor(country), math_avg)) +
+  geom_bar(stat = 'identity') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(data = avg_scores_by_country_complete, aes(escs, math_avg)) +
+  geom_point()
+
+```
+```{r}
+United_States_complete <- subset(scores_and_ses_complete, 
+                                 country == 'United States of America')
+
+ggplot(United_States_complete) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.1) +
+  ggtitle("United States")
+
+Canada_complete <- subset(scores_and_ses_complete, 
+                                 country == 'Canada')
+
+ggplot(Canada_complete) +
+  geom_point(aes(escs, math), color = 'blue', alpha = 0.1) +
+  ggtitle("Canada")
+
+x = Canada_complete$escs
+y = Canada_complete$math
+cor(x,y, use = 'complete.obs')
+cor(United_States_complete$escs, United_States_complete$math, use = 'complete.obs')
+
+```
+
+```{r}
+
+x <- quantile(United_States_complete$escs, prob = seq(0, 1, length = 5), na.rm =TRUE)
+US1 <- mean(subset(United_States_complete, United_States_complete$escs <= x[1])$math)
+US2 <- mean(subset(United_States_complete, United_States_complete$escs <= x[2] &
+                United_States_complete$escs > x[1])$math)
+US3 <- mean(subset(United_States_complete, United_States_complete$escs <= x[3] &
+                United_States_complete$escs > x[2])$math)
+US4 <- mean(subset(United_States_complete, United_States_complete$escs <= x[4] &
+                United_States_complete$escs > x[3])$math)
+US5 <- mean(subset(United_States_complete, United_States_complete$escs > x[4])$math)
+y = c(US1, US2, US3, US4, US5)
+df <- data_frame(x,y)
+
+ggplot(df, aes(x,y)) +
+  geom_point() +
+  xlab("ESCS by quintile") +
+  ylab("average math score") +
+  ggtitle("United States")
+
+write.table(df, 
+            file = "US_quantiles.csv",
+            sep = ",")
+```
+
+```{r}
+country_groups <- group_by(scores_and_ses_complete, country)
+countries <- unique(scores_and_ses_complete$country)
+```
+
+
+```{r}
+
+
+
+quintiles <- data.frame(country = character(),
+                 quintile = numeric(),
+                 escs = numeric(),
+                 math = numeric(),
+                 reading = numeric(),
+                 science = numeric(),
+                 stringsAsFactors = FALSE)
+for (c in countries)
+{
+  data <- subset(scores_and_ses_complete, country == c)
+  quint <-  quantile(data$escs, prob = seq(0, 1, length = 6), na.rm =TRUE)
+  Q0 <- subset(data, escs <= quint[1])
+  row <- data.frame(c, " ESCS 0%ile", quint[[1]], median(Q0$math, na.rm =TRUE), 
+           median(Q0$reading, na.rm =TRUE),
+           median(Q0$science, na.rm =TRUE))
+  names(row) <- c('country', 'prob', 'escs', 'math', 'reading', 'science')
+  #quintiles <- rbind(quintiles, row)
+  Q1 <- subset(data, data$escs <= quint[2])
+    row <- data.frame(c, " ESCS < 20%ile", quint[[2]], median(Q1$math, na.rm =TRUE), 
+           median(Q1$reading, na.rm =TRUE),
+           median(Q1$science, na.rm =TRUE))
+  names(row) <- c('country', 'prob', 'escs', 'math', 'reading', 'science')
+  quintiles <- rbind(quintiles, row)
+  Q2 <- subset(data, data$escs <= quint[3] & data$escs > quint[2])
+    row <- data.frame(c, " ESCS 20-40%ile", quint[[3]], median(Q2$math, na.rm =TRUE), 
+           median(Q2$reading, na.rm =TRUE),
+           median(Q2$science, na.rm =TRUE))
+    names(row) <- c('country', 'prob', 'escs', 'math', 'reading', 'science')
+    quintiles <- rbind(quintiles, row)
+  Q3 <- subset(data, data$escs <= quint[4] & data$escs > quint[3])
+    row <- data.frame(c, " ESCS 40-60%ile", quint[[4]], median(Q3$math, na.rm =TRUE), 
+           median(Q3$reading, na.rm =TRUE),
+           median(Q3$science, na.rm =TRUE))
+    names(row) <- c('country', 'prob', 'escs', 'math', 'reading', 'science')
+    quintiles <- rbind(quintiles, row)
+  Q4 <- subset(data, data$escs <= quint[5] & data$escs > quint[4])
+    row <- data.frame(c, " ESCS 60-80%ile", quint[[5]], median(Q4$math, na.rm =TRUE), 
+           median(Q4$reading, na.rm =TRUE),
+           median(Q4$science, na.rm =TRUE))
+    names(row) <- c('country', 'prob', 'escs', 'math', 'reading', 'science')
+    quintiles <- rbind(quintiles, row)
+  Q5 <- subset(data, data$escs > quint[5])
+    row <- data.frame(c, " ESCS > 80%ile", quint[[6]], median(Q5$math, na.rm =TRUE), 
+           median(Q5$reading, na.rm =TRUE),
+           median(Q5$science, na.rm =TRUE))
+    names(row) <- c('country', 'prob', 'escs', 'math', 'reading', 'science')
+    quintiles <- rbind(quintiles, row)
+
+}
+
+
+
+```
+
+```{r}
+write.table(quintiles, 
+            file = "quintiles2.csv",
+            sep = ",")
+
+```
+```{r}
+
+ggplot(data = subset(quintiles, country == "United States of America"), aes(escs, math)) +
+  geom_point()
+
+unique(quintiles$country)
+```
+
