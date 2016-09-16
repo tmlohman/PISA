@@ -166,7 +166,7 @@
 		
 		// color code by subject
 		if (subject == "math") {
-			var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
+			var colors = ["#edf8fb","#b3cde3","#8c96c6","#8856a7","#810f7c"];
 		}
 		if (subject == "reading") {
 			var colors = ["#edf8e9","#bae4b3","#74c476","#31a354","#006d2c"];
@@ -512,13 +512,7 @@
 		d3.csv("median_scores_by_country_complete.csv", pick_color);
 		country = "reset";
 		d3.csv('quintiles4.csv', update_scatter);
-	}
-	
-	function button_click() {
-		//d3.csv('quintiles4.csv', clear_scatter)
-		//var scatter_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
-		//return scatter_colors;
-	};
+	}	
 
 	
 	// initial function calls
