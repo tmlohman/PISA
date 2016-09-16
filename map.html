@@ -28,7 +28,7 @@
 		}
 			#radio_div {
 			    float: left;
-			    width: 180px;
+			    width: 130px;
 			    height: 120px
 			    padding: 10px 10px 0px 10px;
 			    text-align: left;
@@ -40,7 +40,7 @@
 			    padding: 10px 0px 0px 10px;
 			}
 			
-	#legend_div {
+	#scatter_title_div {
 	    float: right;
 	    width: 33.5%;
 	    height: 20%;
@@ -48,12 +48,24 @@
 	} 
 		#clear_button {
 			float: right;
+			margin: 10px;
+
+		}
+		#legend_div {
+			position: absolute;
+			top: 50px;
+			width: 180px;
+			height: 120px;
+			margin:0px'
 		}
 	#scatter_div {
 	    float: right;
 	    width: 35%;
 	    height: 40%;
 	} 
+	.legendOrdinal {
+		padding: 0px;
+	}
 	#text_div {
 		float: right;
 	    width: 35%;
@@ -99,22 +111,22 @@
 					<br>
 				</div>
 				<h1 class = "title"> Median PISA Scores Worldwide</h1>
-				<p class = "title"> Hover over any country for name and score.<br>Click to see more data on the scatter plot.</p>
+				<p class = "title"> Hover over any country for name and score.<br>Click any country to add or remove data from the scatter plot.</p>
 				<p class = "title"> </p>
 				
 			</div>
 		</div>
-		<div id = "legend_div" class = "text">
+		<div id = "scatter_title_div" class = "text">
+			<div id = "legend_div" class = "text"></div>
 			<h3 class = "title">Median Test Scores vs.<br>Socioeconomic Status by Quintile</h3>
-			<button type="button" id="clear_button" onclick="clear_scatter()">Clear scatter plot</button>
-		</div>
+			<button type="button" id="clear_button" onclick="clear_scatter()">Clear scatter plot</button></div>
 		<div id = "scatter_div" class = "text"></div>
 		<div id = "text_div" class = "text" >
 			<h4> What is the PISA?</h4>
 			<p class = "small_text">The Programme for International Student Assessment (PISA) is a triennial international survey which aims to evaluate education systems worldwide by testing the skills and knowledge of 15-year-old students. To date, students representing more than 70 economies have participated in the assessment. This description was borrowed from <a href = "https://www.oecd.org/pisa/aboutpisa/">oced.org</a>.</p>
 			<h4> What is ESCS?</h4>
-			<p class = "small_text">ESCS is a composite metric of students' social, economic, and cultural status. It factors in such variables as parents' education level, language spoken at home, and number of books in the house. Due to cultural variatons, each country has a unique formula determined using PCA. The higher the value, the better off the student is, with an ESCS value of 0 being middle class. More information on ESCS is available in the <a href = "https://www.oecd.org/pisa/pisaproducts/PISA%202012%20Technical%20Report_Chapter%2016.pdf">PISA Technical Report</a>, beginning on page 351.</p>
-			<p class = "small_text">Access the complete <a href = "https://www.google.com/url?q=https://s3.amazonaws.com/udacity-hosted-downloads/ud507/pisa2012.csv.zip&sa=D&ust=1474053222244000&usg=AFQjCNHyBK2oWwB62iewmFDVfVhRI0oqHw">2012 PISA data set</a>. (~2.5 GB)</p>
+			<p class = "small_text">ESCS is a composite metric of students' social, cultural, and economic status. It factors in such variables as parents' education level, language spoken at home, and number of books in the house. Due to cultural variatons, each country has a unique formula determined using PCA. The higher the value, the better off the student is, with an ESCS value of 0 being middle class. More information on ESCS is available in the <a href = "https://www.oecd.org/pisa/pisaproducts/PISA%202012%20Technical%20Report_Chapter%2016.pdf">PISA Technical Report</a>, beginning on page 351.</p>
+			<p class = "small_text">Download the complete <a href = "https://www.google.com/url?q=https://s3.amazonaws.com/udacity-hosted-downloads/ud507/pisa2012.csv.zip&sa=D&ust=1474053222244000&usg=AFQjCNHyBK2oWwB62iewmFDVfVhRI0oqHw">2012 PISA data set</a>. (~2.5 GB)</p>
 		
 		</div>
 	</div>
@@ -335,9 +347,9 @@
 			   .attr('id', 'ylabel')
 		       .attr("text-anchor", "end")
 			   .attr("y", 25 )
-			   .attr("x", -scatter_height/3)
+			   .attr("x", -scatter_height/5)
 			   .attr("transform", "rotate(-90)")
-			   .text("median " + subject + " score");
+			   .text("Median " + subject + " score");
 			
 		scatter.selectAll('circle')
 			   .attr("id", function(d) { return d.country })
@@ -360,6 +372,7 @@
 		
 		scatter_legend.append("g")
 					  .attr("class", "legendOrdinal")
+					  .attr('id', 'scatter_legend')
 					  .attr("transform", "translate(" + legend_margin +", "+ legend_margin+")");
 	
 		var legendOrdinal = d3.legend.color()  
@@ -390,7 +403,7 @@
 			country_colors = [];
 			unused_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
 			scatter.select('#ylabel')
-			   .text("median " + subject + " score");
+			   .text("Median " + subject + " score");
 			var empty_scale = d3.scale.ordinal()
 						.domain([])
 						.range([]);
