@@ -3,74 +3,178 @@
 <head>
   <meta charset="utf-8">
   <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.12.0/d3-legend.js"></script> 
+  <style type="text/css">
+	  
+	  
+	#outer {
+		position: fixed;
+		width: 100%;
+		height: 100%;
+	}
+	#map_div {
+	    float: left;
+	    width: 64%;
+	    height: 100%;
+	    border: 1px solid red;
+	}
+		#map_legend_div {
+	    float: right;
+	    width: 200px;
+	    height: 150px;
+	    text-align: right;
+	    border: 1px solid red;
+	}
+		#radio_div {
+	    float: left;
+	    width: 150px;
+	    height: 120px;
+	    border: 1px solid red;
+	}
+	#legend_div {
+	    float: right;
+	    width: 35%;
+	    height: 20%;
+	    border: 1px solid red;
+	} 
+		#clear_button {
+			float: right;
+		}
+	#scatter_div {
+	    float: right;
+	    width: 35%;
+	    height: 40%;
+	    border: 1px solid red;
+	} 
+	#text_div {
+		float: right;
+	    width: 35%;
+	    height: 40%;
+	    border: 1px solid red;
+	}  
+	.legendQuant {
+		color: 'white';
+		text-align: 'right';
+	}
+	.text {
+		font-family: arial;
+	}
+	</style>
   
     <body>
-
-	<form name = "chooseSubject">
-	  <input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
-	  <input type="radio" name="subject" value="reading" onchange="redraw('reading');"> Reading<br>
-	  <input type="radio" name="subject" value="science", onchange="redraw('science');"> Science
-	</form>
-
-	
-    <script type="text/javascript">  
-  		
-        function draw(geo_data) {
-	        "use strict";
-	        // draw the map
-	        var margin = 75,
-	            width = 1500 - margin,
-	            height = 730 - margin;
-	
-	        var svg = d3.select("body")
-	            .append("svg")
-	            .attr("width", width + margin)
-	            .attr("height", height + margin)
-	            .append('g')
-	            .attr('class', 'map');
-	       
-	        var projection = d3.geo.mercator()
-								   .scale(160)
-								   .translate([width/3, height/1.5]);
-	        
-	        var path = d3.geo.path().projection(projection);
-	
-	        var map = svg.selectAll('path')
-						 .data(geo_data.features)
-						 .enter()
-						 .append('path')
-						 .attr('d', path)
-						 .style('fill', '#f7fbff')	 
-						 .style('stroke', 'black')
-						 .style('stroke-width', 0.5)
-                         .append('svg:title')
-                         .text(function(d) {
-						        return d.properties.name
-					         })
-					     .append('svg:legend');
-				         
-				d3.csv("avg_scores_by_country_complete3.csv", pick_color)	
-		}
+	<div id = outer>
+		<div id = map_div class = "text">
+			<div id = "radio_div" class = "text">
+				Choose a subject:
+			<form name = "chooseSubject">
+			<input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
+			<input type="radio" name="subject" value="reading" onchange="redraw('reading');"> Reading<br>
+			<input type="radio" name="subject" value="science", onchange="redraw('science');"> Science
+			</form></div>
+			<div id = map_legend_div class = "text">
+				Median scores by country:
+			</div>
+		</div>
+		<div id = legend_div class = "text">
+			<button type="button" id="clear_button" onclick="clear_scatter()">Clear scatter plot</button>
+		</div>
+		<div id = scatter_div class = "text"></div>
+		<div id = text_div class = "text" >
+			<h2>How to use this visualization:</h2>
+			<ol>
+				<li>Select a subject to explore.</li>
+				<li>Hover over any country to see its name and median PISA score.</li>
+				<li>Click on any country to see how its PISA scores correlate to students' socioeconomic status (ESCS).</li>
+				<li>Click the country again to remove it from the plot. The scatter plot will display a maximum of 5 countries.</li>
+				<li>For more information on the PISA test, click <a href = "https://nces.ed.gov/surveys/pisa/pisa2012/pisa2012highlights_2.asp">here</a>. </li>
+			</ol>
 		
+		</div>
+	</div>
+
+    <script type="text/javascript">  
+  	
+  	// draws empty map	
+	function draw(geo_data) {
+        "use strict";
+        // set dimensions
+        var map_div = document.getElementById('map_div'); 
+		var map_width = map_div.offsetWidth;
+		var map_height = map_div.offsetHeight;
+		var map_margin = 75;
+		var map_scale = map_width / 6.5;
+    
+        // draw the map
+        var svg = d3.select("#map_div")
+            .append("svg")
+            .attr("width", map_width + map_margin)
+            .attr("height", map_height + map_margin)
+            .append('g')
+            .attr('class', 'map');
+       
+        var projection = d3.geo.mercator()
+							   .scale(map_scale)
+							   .translate([map_width/2, map_height/1.9]);
+        
+        var path = d3.geo.path().projection(projection);
+
+        var map = svg.selectAll('path')
+					 .data(geo_data.features)
+					 .enter()
+					 .append('path')
+					 .attr('d', path)
+					 .style('fill', '#f7fbff')	 
+					 .style('stroke', 'black')
+					 .style('stroke-width', 0.5)
+					 .append('svg:title')
+					 .text(function(d) {
+					        return d.properties.name
+				         })
+				     .append('svg:legend');
+		
+		// color code the map	         
+		d3.csv("median_scores_by_country_complete.csv", pick_color)	
+		
+		// draw initial map legend
+		var dummy_scale = d3.scale.quantile()
+							      .domain([1,2,3,4,5])
+							      .range(['red', 'blue', 'yellow', 'purple', 'green']);
+		var map_legend = d3.select("#map_legend_div")
+						   .append('svg');
+	
+		map_legend.append("g")
+				  .attr("class", "legendQuant")
+		          .attr("transform", "translate(20,20)");
+		
+		var legend = d3.legend.color()
+		               .labelFormat(d3.format(".2f"))
+		               .scale(dummy_scale);
+		
+		map_legend.select(".legendQuant")
+		          .call(legend);
+			
+	}
+	
+	// adds color scale to map	
 	function pick_color(data) {
-		var svg = d3.select("body")
+		var svg = d3.select("#map_div")
 		data.map(function (d) {
 				d.math = +d.math;
 				d.reading = +d.reading;
 				d.science = +d.science;
 		})
 		
+		// color code by subject
 		if (subject == "math") {
-			var colors = ["#eff3ff","#bdd7e7","#6baed6","#3182bd","#08519c"];
+			var colors = ["#edf8fb","#b3cde3","#8c96c6","#8856a7","#810f7c"];
 		}
 		if (subject == "reading") {
 			var colors = ["#edf8e9","#bae4b3","#74c476","#31a354","#006d2c"];
 		}
 		if (subject == "science") {
-			var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"]
+			var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"];
 		}
-			
-					
+							
 		var score_extent = d3.extent(data, function(d) {
 				return d[subject];
 			});
@@ -78,7 +182,20 @@
 		var score_scale = d3.scale.quantile()
 						   .domain(score_extent)
 						   .range(colors);
+						   
+		// update legend with appropriate scale
+		var map_legend = d3.select("#map_legend_div");
 
+		map_legend.append("g")
+				  .attr("class", "legendQuant")
+		          .attr("transform", "translate(20,20)");
+		
+		var legend = d3.legend.color()
+		               .labelFormat(d3.format(".0f"))
+		               .scale(score_scale);
+		
+		map_legend.select(".legendQuant")
+		          .call(legend);
 		
 		// create object that pairs countries with correct color		
 		var color_assignments = {};
@@ -86,7 +203,7 @@
 		for (var i = 0; i < l; i++) {
 			color_assignments[data[i].country] = score_scale(data[i][subject]);
 		}
-		
+
 		function update_color(d) {
 			if (d.properties.name in color_assignments) {
 				return color_assignments[d.properties.name]
@@ -112,33 +229,34 @@
 		
 		// click code
 		function on_click(d) {
-			country = d.properties.name;
-			d3.csv('quintiles.csv', add_scatter);
-		}
+			if (d.properties.name in color_assignments) {
+				country = d.properties.name;
+				/*
+				if (selected_countries.includes(country)) {
+					var i = selected_countries.indexOf(country);
+					selected_countries.splice(i, 1);
+				} else {
+					selected_countries.push(country);
+				}; */
+				d3.csv('quintiles4.csv', update_scatter);
+			}
+		};
 
 		// update colors, hover-text					
 		svg.selectAll('path')
 		   .style('fill', update_color)
 		   .on('click', on_click)
-		   
-		
+		   	
 		svg.selectAll('title')
 		   .text(update_score)
 		
-		// draw legend
-		var min_score = score_extent[0].toFixed(0)
-		var max_score = score_extent[1].toFixed(0)
-		color_scale = {}
-		for (var i = min_score; i < max_score; i++) {
-			color_scale[i] = score_scale(i)
-			if (color_scale[i-1] == color_scale[i]) {
-				delete color_scale[i-1];
-			}
-		}
-								
 	}
 	
+	// draws scatter plot axis
 	function add_scatter(data) {
+		"use strict"
+		var country = "USA"
+
 		data.map(function (d) {
 							d.prob = +d.prob;
 							d.escs = +d.escs;
@@ -147,88 +265,262 @@
 							d.science = +d.science;
 				});
 
-		"use strict"
-
-			
-		var radius = 5
-		
-		
-		var svg = d3.select("body")
+		var scatter = d3.select("#scatter_div")
 					.append("svg")
-					.attr("width", width + margin)
-					.attr("height", height + margin)
+					.attr("width", scatter_width)
+					.attr("height", scatter_height)
 					.append('g')
 					.attr('class', 'chart');
 					
-		d3.select('svg')
-		  .selectAll('circle')
-		  .data(data.filter(function(d) { return d.country == country }))
-		  .enter()
-		  .append('circle') 
+		// bind data to circles
+		scatter.selectAll('circle')
+		       .data(data.filter(function(d) { return d.country == country }))
+		       .enter()
+		       .append('circle')
+		       
+		var x_translate = scatter_height - scatter_margin
+		//append x-axis
+		scatter.append('g')
+			   .attr('class', 'x axis')
+			   .attr('transform', "translate(0 ," + x_translate + ")")
+			   .call(escs_axis)
+			   .selectAll("text")  
+			   .style("text-anchor", "end")
+               .attr("dx", "-.8em")
+               .attr("dy", ".15em")
+               .attr("transform", "rotate(-65)" );
+               
+        scatter.append("text")
+			   .attr("class", "x label")
+			   .attr("text-anchor", "end")
+			   .attr("x", scatter_width/2)
+			   .attr("y", scatter_height - 15)
+		       .text("ESCS");
+		   
+		// append y-axis	
+		scatter.append('g')
+			   .attr('class', 'y axis')
+			   .attr('transform', "translate("+ scatter_margin +", 0)")
+			   .call(score_axis);
+			   
+	    scatter.append("text")
+			   .attr("class", "y label")
+			   .attr('id', 'ylabel')
+		       .attr("text-anchor", "end")
+			   .attr("y", 25 )
+			   .attr("x", -scatter_height/3)
+			   .attr("transform", "rotate(-90)")
+			   .text("median " + subject + " score");
+			
+		scatter.selectAll('circle')
+			   .attr("id", function(d) { return d.country })
+               .attr('cx', function(d) {
+                  return x_scale(d['escs']);
+                })
+               .attr('cy', function(d) {
+                  return y_scale(d[subject]);
+                })
+               .attr('r', radius)
+               .attr('fill', 'blue');
+               
+        // initialize empty legend
+        var scatter_legend = d3.select("#legend_div")
+							   .append("svg");
+						   
+        var empty_scale = d3.scale.ordinal()
+						.domain([])
+						.range([]);
+		
+		scatter_legend.append("g")
+					  .attr("class", "legendOrdinal")
+					  .attr("transform", "translate(" + legend_margin +", "+ legend_margin+")");
+	
+		var legendOrdinal = d3.legend.color()  
+		                             .shape("path", d3.svg.symbol().type("circle").size(100)())
+		                             .shapePadding(10)
+		                             .scale(empty_scale);
+		                            
+		scatter_legend.select(".legendOrdinal")
+					  .attr('id', "scatter_legend")
+					  .call(legendOrdinal);
+        
+		clear_scatter();
+	}
+	
+	// updates scatter plot when country is clicked
+	function update_scatter(data) {
+		var scatter = d3.select("#scatter_div")
+		console.log(country)
+		
+		// reset scatter plot if called for
+		if (country == "reset") {
+			var scatter = d3.select('#scatter_div')
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data)  
+                              
+			data_upd.remove();
+			country_colors = [];
+			unused_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
+			scatter.select('#ylabel')
+			   .text("median " + subject + " score");
+			var empty_scale = d3.scale.ordinal()
+						.domain([])
+						.range([]);
+			draw_legend(empty_scale);
+			return;
+		}	
+		
+		// keep track of colors
+		var new_country = true;
+		for (var i=0; i < country_colors.length; i++) {
+	        if (country_colors[i].country === country) {
+				new_country = false;
+				break;
+			}
+		}
+		
+		if (new_country == true) {
+			add_country = {'country':country, 'color': unused_colors[0]};
+			country_colors.push(add_country);
+			unused_colors.splice(0,1);
+        }		
+
+		// drop first country and update color scale if more than 5 are selected
+		if (country_colors.length > 5) {
+			drop_country = country_colors[0].country;
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data.filter( function(d) { 
+								  return d['country'] == drop_country}),  
+								  function(d) { return d.row; });
+			data_upd.remove();
+			country_colors[5].color = country_colors[0].color
+			country_colors.splice(0,1);
+		};	
+		
+		// select matching data
+        var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data.filter( function(d) { 
+								  return d['country'] == country}),  
+								  function(d) { return d.row; });
+
+		data_ent = data_upd.enter();
+      	
+        // remove selected country from graph and country_colors
+        data_upd.remove();
+        if (new_country == false) {
+			unused_colors.push(country_colors[i].color);
+			country_colors.splice(i,1);
+		}
+		
+		// update arrays of countries and colors for scale
+		selected_countries = []
+		used_colors = []
+		for (var j = 0; j < country_colors.length; j++) {	
+			used_colors.push(country_colors[j].color);			
+			selected_countries.push(country_colors[j].country);
+		}			
+		
+        // add selected country to graph
+  	    data_ent.append('circle')
+			    .attr('cx', function(d) {
+		                  return x_scale(d['escs']);
+		                })
+		               .attr('cy', function(d) {
+		                  return y_scale(d[subject]);
+		                })
+		        .attr('r', 5)
+		        .attr('fill', used_colors[used_colors.length-1])
+		        .append('svg:title')
+					 .text(function(d) {
+					        return [d.country, d.prob];
+				         });
+			
+		// draw the updated legend
+		var ordinal = d3.scale.ordinal()
+						.domain(selected_countries)
+						.range(used_colors);
+		draw_legend(ordinal);
+	
+	}
+
+	// clear all data from scatter plot
+	function clear_scatter() {
+		country = "reset";
+		d3.csv('quintiles4.csv', update_scatter)
+
+	}
+	
+	// draw scatter plot legend
+	function draw_legend(scale) {
+		var scatter_legend = d3.select("#legend_div");
+
+		scatter_legend.append("g")
+					  .attr("class", "legendOrdinal")
+					  .attr("transform", "translate(" + legend_margin +", "+ legend_margin+")");
+	
+		var legendOrdinal = d3.legend.color()  
+		                             .shape("path", d3.svg.symbol().type("circle").size(100)())
+		                             .shapePadding(10)
+		                             .scale(scale);
+                           
+		scatter_legend.select(".legendOrdinal")
+					  .attr('id', "scatter_legend")
+					  .call(legendOrdinal);
+		}		
+	
+    // global variables
+		// keep track of what is on scatter plot currently
+	    var country_colors = [];
+	    var unused_colors = ["#1b9e77","#d95f02","#7570b3","#e7298a","#e6ab02"];
+	    
+		// set scatter plot dimensions
+		var scatter_div = document.getElementById('scatter_div'); 
+		var scatter_width = scatter_div.offsetWidth;
+		var scatter_height = scatter_div.offsetHeight;
+		var scatter_margin = 75;
+		var radius = 5
+		
+		// scatter plot horizontal axis
+		var x_extent = [-2.75, 3.70];
+		var x_scale = d3.scale.linear()
+			.domain(x_extent)
+			.range([scatter_margin, scatter_width - scatter_margin/2]);
+		var escs_axis = d3.svg.axis()
+			.scale(x_scale);
 		  
-		  
-		  // horizontal axis
-          var escs_extent = d3.extent(data, function(d) {
-			  return d['escs'];
-		  });
-		  var escs_scale = d3.scale.linear()
-			.range([2.2*width/3, width])
-			.domain(escs_extent);
-		  var escs_axis = d3.svg.axis()
-			.scale(escs_scale);
-		  
-		  // vertical axis
-		  var score_extent = d3.extent(data, function(d) {
-			  return d[subject];
-		  });
-          var score_scale = d3.scale.linear()
-			.range([height, height/2])
-			.domain(score_extent);
-		  var score_axis = d3.svg.axis()
-			.scale(score_scale)
+		// scatter plot vertical axis
+		var y_extent = [312, 672];
+		var y_scale = d3.scale.linear()
+			.domain(y_extent)
+			.range([scatter_height - scatter_margin, scatter_margin/2]);
+		var score_axis = d3.svg.axis()
+			.scale(y_scale)
 			.orient("left");
 			
-		  // append svg to page corresponding to the d3 x-axis
-		  d3.select("svg")
-			.append('g')
-			.attr('class', 'x axis')
-			.attr('transform', "translate(0," + height + ")")
-			.call(escs_axis);
-		  
-		  // append svg to page corresponding to the d3 y-axis	
-		  d3.select("svg")
-			.append('g')
-			.attr('class', 'y axis')
-			.attr('transform', "translate(" + 2.2*width/3 + ",0)")
-			.call(score_axis);
-			
-		  d3.selectAll('circle')
-              .attr('cx', function(d) {
-                  return escs_scale(d['escs']);
-              })
-              .attr('cy', function(d) {
-                  return score_scale(d[subject]);
-              })
-              .attr('r', radius)
-              .attr('fill', 'blue');
-			
-	}
+		// set legend dimensions
+		var legend_div = document.getElementById('legend_div'); 
+		var legend_width = legend_div.offsetWidth;
+		var legend_height = legend_div.offsetHeight;
+		var legend_margin = 25;
 	
-	
-	var margin = 75,
-	            width = 1500 - margin,
-	            height = 730 - margin;
-    		
+
 	function redraw(c) {
 		subject = c;
-		d3.csv("avg_scores_by_country_complete3.csv", pick_color)
-	}
-	
-	subject = "math"
-	d3.json("world_countries.json", draw);
+		d3.csv("median_scores_by_country_complete.csv", pick_color);
+		country = "reset";
+		d3.csv('quintiles4.csv', update_scatter);
+	}	
 
+	
+	// initial function calls
+	var subject = "math"
+	d3.json("world_countries.json", draw);
+	d3.csv('quintiles4.csv', add_scatter);
 
     </script>
-    
+
 </body>
 </html>
