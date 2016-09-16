@@ -270,13 +270,6 @@
 		function on_click(d) {
 			if (d.properties.name in color_assignments) {
 				country = d.properties.name;
-				/*
-				if (selected_countries.includes(country)) {
-					var i = selected_countries.indexOf(country);
-					selected_countries.splice(i, 1);
-				} else {
-					selected_countries.push(country);
-				}; */
 				d3.csv('quintiles4.csv', update_scatter);
 			}
 		};
@@ -390,7 +383,6 @@
 	// updates scatter plot when country is clicked
 	function update_scatter(data) {
 		var scatter = d3.select('#scatter_div')
-		console.log(country)
 		
 		// reset scatter plot if called for
 		if (country == 'reset') {
@@ -409,7 +401,50 @@
 						.range([]);
 			draw_legend(empty_scale);
 			return;
-		}	
+		}
+		
+		// redraw for new subject, if called for
+		if (country == 'change_subject') {
+			console.log(selected_countries);
+			var scatter = d3.select('#scatter_div')
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data)  
+                              
+			data_upd.remove();
+			scatter.select('#ylabel')
+			   .text('Median ' + subject + ' score');
+			for (var i = 0; i < selected_countries.length; i++)	{
+				country = selected_countries[i];
+				color = used_colors[i]
+				var data_upd = scatter.select('svg')
+		                              .selectAll('circle')
+		                              .data(data.filter( function(d) { 
+										  return d['country'] == country}),  
+										  function(d) { return d.row; });
+				data_ent = data_upd.enter();						  
+				data_ent.append('circle')
+					    .attr('cx', function(d) {
+				                  return x_scale(d['escs']);
+				                })
+				               .attr('cy', function(d) {
+				                  return y_scale(d[subject]);
+				                })
+				        .attr('r', 5)
+				        .attr('fill', color)
+				        .append('svg:title')
+							 .text(function(d) {
+							        return [d.country, d.prob];
+						         });
+				}
+			return;
+		};
+				
+			
+			
+
+
+				
 		
 		// keep track of colors
 		var new_country = true;
@@ -550,7 +585,7 @@
 	function redraw(c) {
 		subject = c;
 		d3.csv('median_scores_by_country_complete.csv', pick_color);
-		country = 'reset';
+		country = 'change_subject';
 		d3.csv('quintiles4.csv', update_scatter);
 	}	
 
