@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <meta charset='utf-8'>
   <script src='http://d3js.org/d3.v3.min.js'></script>
   <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.12.0/d3-legend.js'></script> 
+  <script src='https://code.jquery.com/jquery-3.1.0.js' integrity='sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=' crossorigin='anonymous'></script>
   <style type='text/css'>
 	  
 	  
@@ -119,7 +120,7 @@
 		<div id = 'scatter_title_div' class = 'text'>
 			<div id = 'legend_div' class = 'text'></div>
 			<h3 class = 'title'>Median Test Scores vs.<br>Socioeconomic Status by Quintile</h3>
-			<button type='button' id='clear_button' onclick='clear_scatter()'> Clear scatter plot</button></div>
+			<button type='button' id='clear_button'> Clear scatter plot</button></div>
 		<div id = 'scatter_div' class = 'text'></div>
 		<div id = 'text_div' class = 'text' >
 			<h4> What is the PISA?</h4>
@@ -132,6 +133,11 @@
 	</div>
 
     <script type='text/javascript'>  
+	// make button work on mobile too
+	$(document).ready(function() {
+		$('#clear_button').on('click touchstart', clear_scatter)
+    });
+
   	
   	// draws empty map	
 	function draw(geo_data) {
