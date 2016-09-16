@@ -9,33 +9,42 @@
 	  
 	#outer {
 		position: fixed;
+		overflow: scroll;
 		width: 100%;
-		height: 100%;
+		height: 100%
+
 	}
 	#map_div {
 	    float: left;
-	    width: 64%;
+	    width: 63%;
 	    height: 100%;
-	    border: 1px solid red;
+	    z-index: -1;
 	}
-		#map_legend_div {
-	    float: right;
-	    width: 200px;
-	    height: 150px;
-	    text-align: right;
-	    border: 1px solid red;
-	}
-		#radio_div {
-	    float: left;
-	    width: 150px;
-	    height: 120px;
-	    border: 1px solid red;
-	}
+		#title_div {
+		    float: left;
+		    width: 98%;
+		    height: 150px;
+		    padding: 10px 0px 0px 10px;
+		}
+			#radio_div {
+			    float: left;
+			    width: 180px;
+			    height: 120px
+			    padding: 10px 10px 0px 10px;
+			    text-align: left;
+			}			
+			#map_legend_div {
+			    float: right;
+			    width: 180px;
+			    height: 120px
+			    padding: 10px 0px 0px 10px;
+			}
+			
 	#legend_div {
 	    float: right;
-	    width: 35%;
+	    width: 33.5%;
 	    height: 20%;
-	    border: 1px solid red;
+	    padding: 10px 20px 0px 0px;
 	} 
 		#clear_button {
 			float: right;
@@ -44,50 +53,68 @@
 	    float: right;
 	    width: 35%;
 	    height: 40%;
-	    border: 1px solid red;
 	} 
 	#text_div {
 		float: right;
 	    width: 35%;
 	    height: 40%;
-	    border: 1px solid red;
+	    padding: 0px 10px 0px 0px;
 	}  
-	.legendQuant {
-		color: 'white';
-		text-align: 'right';
-	}
+
 	.text {
 		font-family: arial;
+		border: 0px solid red;
+
+	}
+	.title {
+		text-align: center;	
+		margin: 0px;
+	}
+	.small_text{
+		font-size: small;
+	}
+	h4 {
+		margin: 0px;
 	}
 	</style>
   
     <body>
-	<div id = outer>
-		<div id = map_div class = "text">
-			<div id = "radio_div" class = "text">
-				Choose a subject:
-			<form name = "chooseSubject">
-			<input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
-			<input type="radio" name="subject" value="reading" onchange="redraw('reading');"> Reading<br>
-			<input type="radio" name="subject" value="science", onchange="redraw('science');"> Science
-			</form></div>
-			<div id = map_legend_div class = "text">
-				Median scores by country:
+	<div id = "outer" class="background">
+		<div id = "map_div" class="text">
+			
+			<div id = "title_div" class = "text title">
+				<div id = "map_legend_div" class = "text title">
+					Median Score Legend:
+				</div>
+				<div id = "radio_div" class = "text">
+					Choose a subject:
+					<form name = "chooseSubject">
+					<input type="radio" name="subject" value="math", checked = "checked", onchange="redraw('math');"> Math<br>
+					<input type="radio" name="subject" value="reading" onchange="redraw('reading');"> Reading<br>
+					<input type="radio" name="subject" value="science", onchange="redraw('science');"> Science
+					</form>
+					<br>
+					<br>
+					<br>
+					<br>
+				</div>
+				<h1 class = "title"> Median PISA Scores Worldwide</h1>
+				<p class = "title"> Hover over any country for name and score.<br>Click to see more data on the scatter plot.</p>
+				<p class = "title"> </p>
+				
 			</div>
 		</div>
-		<div id = legend_div class = "text">
+		<div id = "legend_div" class = "text">
+			<h3 class = "title">Median Test Scores vs.<br>Socioeconomic Status by Quintile</h3>
 			<button type="button" id="clear_button" onclick="clear_scatter()">Clear scatter plot</button>
 		</div>
-		<div id = scatter_div class = "text"></div>
-		<div id = text_div class = "text" >
-			<h2>How to use this visualization:</h2>
-			<ol>
-				<li>Select a subject to explore.</li>
-				<li>Hover over any country to see its name and median PISA score.</li>
-				<li>Click on any country to see how its PISA scores correlate to students' socioeconomic status (ESCS).</li>
-				<li>Click the country again to remove it from the plot. The scatter plot will display a maximum of 5 countries.</li>
-				<li>For more information on the PISA test, click <a href = "https://nces.ed.gov/surveys/pisa/pisa2012/pisa2012highlights_2.asp">here</a>. </li>
-			</ol>
+		<div id = "scatter_div" class = "text"></div>
+		<div id = "text_div" class = "text" >
+			<h4> What is the PISA?</h4>
+			<p class = "small_text">The Programme for International Student Assessment (PISA) is a triennial international survey which aims to evaluate education systems worldwide by testing the skills and knowledge of 15-year-old students. To date, students representing more than 70 economies have participated in the assessment. This description was borrowed from <a href = "https://www.oecd.org/pisa/aboutpisa/">oced.org</a>.</p>
+			<h4> What is ESCS?</h4>
+			<p class = "small_text">ESCS is a composite metric of students' social, economic, and cultural status. It factors in such variables as parents' education level, language spoken at home, and number of books in the house. Due to cultural variatons, each country has a unique formula determined using PCA. The higher the value, the better off the student is, with an ESCS value of 0 being middle class. More information on ESCS is available in the <a href = "https://www.oecd.org/pisa/pisaproducts/PISA%202012%20Technical%20Report_Chapter%2016.pdf">PISA Technical Report</a>, beginning on page 351.</p>
+			<p class = "small_text">Access the complete <a href = "https://www.google.com/url?q=https://s3.amazonaws.com/udacity-hosted-downloads/ud507/pisa2012.csv.zip&sa=D&ust=1474053222244000&usg=AFQjCNHyBK2oWwB62iewmFDVfVhRI0oqHw">2012 PISA data set</a>. (~2.5 GB)</p>
 		
 		</div>
 	</div>
@@ -169,10 +196,10 @@
 			var colors = ["#edf8fb","#b3cde3","#8c96c6","#8856a7","#810f7c"];
 		}
 		if (subject == "reading") {
-			var colors = ["#edf8e9","#bae4b3","#74c476","#31a354","#006d2c"];
+			var colors = ["#edf8fb","#b2e2e2","#66c2a4","#2ca25f","#006d2c"];
 		}
 		if (subject == "science") {
-			var colors = ["#feedde","#fdbe85","#fd8d3c","#e6550d","#a63603"];
+			var colors = ["#ffffb2","#fecc5c","#fd8d3c","#f03b20","#bd0026"];
 		}
 							
 		var score_extent = d3.extent(data, function(d) {
