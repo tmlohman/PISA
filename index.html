@@ -395,9 +395,14 @@
 			var scatter = d3.select('#scatter_div')
 			var data_upd = scatter.select('svg')
                               .selectAll('circle')
-                              .data(data)  
-                              
+                              .data(data)          
 			data_upd.remove();
+			
+			var line_upd = scatter.select('svg')
+                                  .selectAll('.line')
+                                  .data(data)                    
+			line_upd.remove();
+			
 			country_colors = [];
 			unused_colors = ['#1b9e77','#d95f02','#7570b3','#e7298a','#e6ab02'];
 			scatter.select('#ylabel')
@@ -418,6 +423,10 @@
                               .data(data)  
                               
 			data_upd.remove();
+			var line_upd = scatter.select('svg')
+                              .selectAll('.line')
+                              .data(data)                                
+			line_upd.remove();
 			scatter.select('#ylabel')
 			   .text('Median ' + subject + ' score');
 			for (var i = 0; i < selected_countries.length; i++)	{
@@ -429,20 +438,8 @@
 										  return d['country'] == country}),  
 										  function(d) { return d.row; });
 				data_ent = data_upd.enter();						  
-				data_ent.append('circle')
-					    .attr('cx', function(d) {
-				                  return x_scale(d['escs']);
-				                })
-				               .attr('cy', function(d) {
-				                  return y_scale(d[subject]);
-				                })
-				        .attr('r', 5)
-				        .attr('fill', color)
-				        .append('svg:title')
-							 .text(function(d) {
-							        return [d.country, d.prob];
-						         });
-				}
+				points_and_lines(color);
+			}
 			return;
 		};
 
@@ -470,23 +467,36 @@
 								  return d['country'] == drop_country}),  
 								  function(d) { return d.row; });
 			data_upd.remove();
+			var line_upd = scatter.select('svg')
+								  .selectAll('.line')
+								  .data(data.filter( function(d) { 
+									  return d['country'] == country}));
+			line_upd.remove();
+			
 			country_colors[5].color = country_colors[0].color
 			country_colors.splice(0,1);
 		};	
 		
 		// select matching data
         var data_upd = scatter.select('svg')
+							  .selectAll('circle')
+                              .data(data.filter( function(d) { 
+								  return d['country'] == country}),  
+								  function(d) { return d.row; });
+								  
+		var line_upd = scatter.select('svg')
 							  .selectAll('.line')
                               .data(data.filter( function(d) { 
 								  return d['country'] == country}),  
 								  function(d) { return d.row; });
 
-		console.log(data_upd);
+
 		data_ent = data_upd.enter();
-		console.log(data_ent);
-      	
+		line_ent = line_upd.enter();
+    	
         // remove selected country from graph and country_colors
         data_upd.remove();
+        line_upd.remove();
         if (new_country == false) {
 			unused_colors.push(country_colors[i].color);
 			country_colors.splice(i,1);
@@ -500,34 +510,39 @@
 			selected_countries.push(country_colors[j].country);
 		}			
 		
-        // add selected country to graph
-  	    data_ent.append('circle')
-				.attr('class', 'line')
-			    .attr('cx', function(d) {
-		                  return x_scale(d['escs']);
-		                })
-		               .attr('cy', function(d) {
-		                  return y_scale(d[subject]);
-		                })
-		        .attr('r', 5)
-		        .attr('fill', used_colors[used_colors.length-1])
-		        .append('svg:title')
-					 .text(function(d) {
-					        return [d.country, d.prob];
-				         });
-				         
-		// add a line
-		var valueline = d3.svg.line()
-				          .x(function(d) { return x_scale(d.escs); })
-					      .y(function(d) { return y_scale(d[subject]); });
-				
-		data_ent.append('path')
-                .attr('class', 'line')
-                .attr('d', valueline(data.filter( function(d) { 
-								  return d['country'] == country;})))
-			    .attr('stroke', used_colors[used_colors.length-1])
-			    .attr('fill', 'none');	
-			
+		// add points and lines 
+		var color = used_colors[used_colors.length-1];
+		function points_and_lines(color) {
+	        // add selected country to graph
+	  	    data_ent.append('circle')
+				    .attr('cx', function(d) {
+			                  return x_scale(d['escs']);
+			                })
+			               .attr('cy', function(d) {
+			                  return y_scale(d[subject]);
+			                })
+			        .attr('r', 5)
+			        .attr('fill', color)
+			        .append('svg:title')
+						 .text(function(d) {
+						        return [d.country, d.prob];
+					         });
+					         
+			// add a line
+			var valueline = d3.svg.line()
+					          .x(function(d) { return x_scale(d.escs); })
+						      .y(function(d) { return y_scale(d[subject]); });
+					
+			data_ent.append('path')
+	                .attr('class', 'line')
+	                .attr('d', valueline(data.filter( function(d) { 
+									  return d['country'] == country;})))
+				    .attr('stroke', color)
+				    .attr('fill', 'none');	
+		}
+		
+		
+		points_and_lines(color);
 		// draw the updated legend
 		var ordinal = d3.scale.ordinal()
 						.domain(selected_countries)
