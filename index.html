@@ -359,7 +359,7 @@
                   return y_scale(d[subject]);
                 })
                .attr('r', radius)
-               .attr('fill', 'blue');
+               .attr('fill', 'white');
                
         // initialize empty legend
         var scatter_legend = d3.select('#legend_div')
@@ -388,22 +388,13 @@
 	
 	// updates scatter plot when country is clicked
 	function update_scatter(data) {
-		var scatter = d3.select('#scatter_div')
+		var scatter = d3.select('#scatter_div');
 		
 		// reset scatter plot if called for
 		if (country == 'reset') {
-			var scatter = d3.select('#scatter_div')
-			var data_upd = scatter.select('svg')
-                              .selectAll('circle')
-                              .data(data)          
-			data_upd.remove();
-			
-			var line_upd = scatter.select('svg')
-                                  .selectAll('.line')
-                                  .data(data)                    
-			line_upd.remove();
-			
+			data_update(country);			
 			country_colors = [];
+			selected_countries = [];
 			unused_colors = ['#1b9e77','#d95f02','#7570b3','#e7298a','#e6ab02'];
 			scatter.select('#ylabel')
 			   .text('Median ' + subject + ' score');
@@ -416,33 +407,21 @@
 		
 		// redraw for new subject, if called for
 		if (country == 'change_subject') {
-			console.log(selected_countries);
-			var scatter = d3.select('#scatter_div')
-			var data_upd = scatter.select('svg')
-                              .selectAll('circle')
-                              .data(data)  
-                              
-			data_upd.remove();
-			var line_upd = scatter.select('svg')
-                              .selectAll('.line')
-                              .data(data)                                
-			line_upd.remove();
+			data_update(country);
 			scatter.select('#ylabel')
-			   .text('Median ' + subject + ' score');
+			   .text('Median ' + subject + ' score');			
 			for (var i = 0; i < selected_countries.length; i++)	{
 				country = selected_countries[i];
 				color = used_colors[i]
-				var data_upd = scatter.select('svg')
-		                              .selectAll('circle')
-		                              .data(data.filter( function(d) { 
-										  return d['country'] == country}),  
-										  function(d) { return d.row; });
-				data_ent = data_upd.enter();						  
+				enters = data_update(country);
+				circle_ent = enters[0];
+				line_ent = enters[1];						  
 				points_and_lines(color);
 			}
+			console.log(country_colors);
 			return;
 		};
-
+		
 		// keep track of colors
 		var new_country = true;
 		for (var i=0; i < country_colors.length; i++) {
@@ -456,52 +435,58 @@
 			add_country = {'country':country, 'color': unused_colors[0]};
 			country_colors.push(add_country);
 			unused_colors.splice(0,1);
-        }		
-
-		// drop first country and update color scale if more than 5 are selected
-		if (country_colors.length > 5) {
-			drop_country = country_colors[0].country;
-			var data_upd = scatter.select('svg')
-                              .selectAll('circle')
-                              .data(data.filter( function(d) { 
-								  return d['country'] == drop_country}),  
-								  function(d) { return d.row; });
-			data_upd.remove();
-			var line_upd = scatter.select('svg')
-								  .selectAll('.line')
-								  .data(data.filter( function(d) { 
-									  return d['country'] == country}));
-			line_upd.remove();
-			
-			country_colors[5].color = country_colors[0].color
-			country_colors.splice(0,1);
-		};	
-		
-		// select matching data
-        var data_upd = scatter.select('svg')
-							  .selectAll('circle')
-                              .data(data.filter( function(d) { 
-								  return d['country'] == country}),  
-								  function(d) { return d.row; });
-								  
-		var line_upd = scatter.select('svg')
-							  .selectAll('.line')
-                              .data(data.filter( function(d) { 
-								  return d['country'] == country}),  
-								  function(d) { return d.row; });
-
-
-		data_ent = data_upd.enter();
-		line_ent = line_upd.enter();
-    	
-        // remove selected country from graph and country_colors
-        data_upd.remove();
-        line_upd.remove();
+        }
+        
         if (new_country == false) {
 			unused_colors.push(country_colors[i].color);
 			country_colors.splice(i,1);
 		}
+				
+		// drop first country and update color scale if more than 5 are selected
+		if (country_colors.length > 5) {
+			drop_country = country_colors[0].country;
+			console.log(drop_country);
+			data_update(drop_country);
+			country_colors[5].color = country_colors[0].color
+			country_colors.splice(0,1);
+		};	
 		
+		// select matching data, remove if required
+		function data_update(country) {
+			if (country == 'reset' || country == 'change_subject') {
+				var circle_upd = scatter.select('svg')
+								  .selectAll('circle')
+	                              .data(data);
+									  
+				var line_upd = scatter.select('svg')
+									  .selectAll('.line')
+		                              .data(data);
+				circle_upd.remove();
+		        line_upd.remove();
+		    } else {
+		        var circle_upd = scatter.select('svg')
+									  .selectAll('circle')
+		                              .data(data.filter( function(d) { 
+									  return d['country'] == country}),  
+									  function(d) { return d.row; });
+										  
+				var line_upd = scatter.select('svg')
+									  .selectAll('.line')
+		                              .data(data.filter( function(d) { 
+									  return d['country'] == country}),  
+									  function(d) { return d.row; });
+				circle_upd.remove();
+		        line_upd.remove();
+				var circle_ent = circle_upd.enter();
+				var line_ent = line_upd.enter();
+				return [circle_ent, line_ent];
+			}
+		};
+		
+		var enters = data_update(country);
+		var circle_ent = enters[0];
+		var line_ent = enters[1];
+				
 		// update arrays of countries and colors for scale
 		selected_countries = []
 		used_colors = []
@@ -514,7 +499,7 @@
 		var color = used_colors[used_colors.length-1];
 		function points_and_lines(color) {
 	        // add selected country to graph
-	  	    data_ent.append('circle')
+	  	    circle_ent.append('circle')
 				    .attr('cx', function(d) {
 			                  return x_scale(d['escs']);
 			                })
@@ -533,22 +518,22 @@
 					          .x(function(d) { return x_scale(d.escs); })
 						      .y(function(d) { return y_scale(d[subject]); });
 					
-			data_ent.append('path')
+			line_ent.append('path')
 	                .attr('class', 'line')
 	                .attr('d', valueline(data.filter( function(d) { 
 									  return d['country'] == country;})))
 				    .attr('stroke', color)
 				    .attr('fill', 'none');	
 		}
-		
-		
+				
 		points_and_lines(color);
+		
 		// draw the updated legend
 		var ordinal = d3.scale.ordinal()
 						.domain(selected_countries)
 						.range(used_colors);
 		draw_legend(ordinal);
-	
+					
 	}
 
 	// clear all data from scatter plot
