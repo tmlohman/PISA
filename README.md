@@ -13,9 +13,9 @@ Mike pointed out that the popup window idea wasn't the most user friendly, and t
 I decided to allow the user to compare up to 5 countries on the scatterplot. More than that would make it difficult to read, and also require the legend to take up too much space.
 
 ##Feedback
-I recieved a great deal of feedback from Mike, the main points of which I discussed in the previous section. Family and friends offered more feedback, which I will list and respond to below.  
+* Mike Yi (Udacity Coach) - Discussed in the previous section
 * Kevin Lohman - observed that the map and plot don't dynamically update when the window is re-sized. This is great feedback, but I felt it went beyond the scope of this project. I may incorporate it at some point in the future. He also thought it would be better if, instead of clearing the scatterplot when the user changes the subject, the scatterplot refreshed with the different subject data for the countries selected. I agreed that this would be preferable and I added in the code to accomplish it.
-* Ashutosh Singh (Udacity Forum Mentor) - " The page loads properly in my laptop. The color scale chosen also looks great as it clearly defines the low median scores and the high median scores. Yes, the maps clearly gives the idea of which countries are performing better than others. Great job on adding and removing the data points from the scatter plot on the click of country in the map. The only confusion that arised to me was that on the scatter plot there are 6 points, but then for all countries the points hoggle up the space. and it gets confusing which point belongs to whom. I think you are trying to visualize how socio-economic score affects the grade. It may be better if this is shown using lines / lines with points instead of just points. A slanted upwards line will show that grades increase with the status and a downward will show that they decrease. You have done a great job. All the best for project."
+* Ashutosh Singh (Udacity Forum Mentor) - suggested either replacing the points on the scatterplot with lines, or adding lines to connect the points. I decided to add lines to connect the points, and after adding them in, agreed that it really did make the plot easier to interpret.
 
 
 ##Resources
@@ -62,3 +62,6 @@ http://stackoverflow.com/questions/5842194/css-aligning-elements-inside-a-div
 https://stats.oecd.org/glossary/detail.asp?ID=5401
 http://www.oecd.org/pisa/pisaproducts/datavisualizationcontest.htm
 http://www.oecd.org/pisa/pisaproducts/pisadataanalysismanualspssandsassecondedition.htm
+http://stackoverflow.com/questions/3330193/early-exit-from-function
+https://www.dashingd3js.com/svg-paths-and-d3js
+http://bl.ocks.org/d3noob/38744a17f9c0141bcd04

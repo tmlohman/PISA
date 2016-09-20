@@ -418,7 +418,6 @@
 				line_ent = enters[1];						  
 				points_and_lines(color);
 			}
-			console.log(country_colors);
 			return;
 		};
 		
@@ -445,7 +444,6 @@
 		// drop first country and update color scale if more than 5 are selected
 		if (country_colors.length > 5) {
 			drop_country = country_colors[0].country;
-			console.log(drop_country);
 			data_update(drop_country);
 			country_colors[5].color = country_colors[0].color
 			country_colors.splice(0,1);
