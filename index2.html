@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <script src='https://d3js.org/d3.v3.min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/d3-legend/1.12.0/d3-legend.js'></script> 
+  <script src='https://code.jquery.com/jquery-3.1.0.js' integrity='sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=' crossorigin='anonymous'></script>
+  <style type='text/css'>
+	  
+	  
+	#outer {
+		position: fixed;
+		overflow: scroll;
+		width: 100%;
+		height: 100%
+
+	}
+	#map_div {
+	    float: left;
+	    width: 63%;
+	    height: 100%;
+	    z-index: -1;
+	}
+		#title_div {
+		    float: left;
+		    width: 98%;
+		    height: 150px;
+		    padding: 10px 0px 0px 10px;
+		}
+			#radio_div {
+			    float: left;
+			    width: 130px;
+			    height: 120px
+			    padding: 10px 10px 0px 10px;
+			    text-align: left;
+			}			
+			#map_legend_div {
+			    float: right;
+			    width: 180px;
+			    height: 120px
+			    padding: 10px 0px 0px 10px;
+			}
+			
+	#scatter_title_div {
+	    float: right;
+	    width: 33.5%;
+	    height: 20%;
+	    padding: 10px 20px 0px 0px;
+	} 
+		#clear_button {
+			float: right;
+			margin: 10px;
+
+		}
+		#legend_div {
+			position: absolute;
+			top: 50px;
+			width: 180px;
+			height: 120px;
+			margin:0px'
+		}
+	#scatter_div {
+	    float: right;
+	    width: 35%;
+	    height: 40%;
+	} 
+	.legendOrdinal {
+		padding: 0px;
+	}
+	#text_div {
+		float: right;
+	    width: 35%;
+	    height: 40%;
+	    padding: 0px 10px 0px 0px;
+	}  
+
+	.text {
+		font-family: arial;
+		border: 0px solid red;
+
+	}
+	.title {
+		text-align: center;	
+		margin: 0px;
+	}
+	.small_text{
+		font-size: small;
+	}
+	h4 {
+		margin: 0px;
+	}
+	</style>
+  
+    <body>
+	<div id = 'outer' class='background'>
+		<div id = 'map_div' class='text'>
+			
+			<div id = 'title_div' class = 'text title'>
+				<div id = 'map_legend_div' class = 'text title'>
+					Median Score Legend:
+				</div>
+				<div id = 'radio_div' class = 'text'>
+					Choose a subject:
+					<form name = 'chooseSubject'>
+					<input type='radio' name='subject' value='math', checked = 'checked', onchange="redraw('math');"> Math<br>
+					<input type='radio' name='subject' value='reading' onchange="redraw('reading');"> Reading<br>
+					<input type='radio' name='subject' value='science', onchange="redraw('science');"> Science
+					</form>
+					<br>
+					<br>
+					<br>
+					<br>
+				</div>
+				<h1 class = 'title'> Median PISA Scores Worldwide</h1>
+				<p class = 'title'> Hover over any country for name and score.<br>Click any country to add or remove data from the scatter plot.</p>
+				<p class = 'title'> </p>
+				
+			</div>
+		</div>
+		<div id = 'scatter_title_div' class = 'text'>
+			<div id = 'legend_div' class = 'text'></div>
+			<h3 class = 'title'>Median Test Scores vs.<br>Socioeconomic Status by Quintile</h3>
+			<button type='button' id='clear_button'> Clear scatter plot</button></div>
+		<div id = 'scatter_div' class = 'text'></div>
+		<div id = 'text_div' class = 'text' >
+			<h4> What is the PISA?</h4>
+			<p class = 'small_text'>The Programme for International Student Assessment (PISA) is a triennial international survey which aims to evaluate education systems worldwide by testing the skills and knowledge of 15-year-old students. To date, students representing more than 70 economies have participated in the assessment. This description was borrowed from <a href = 'https://www.oecd.org/pisa/aboutpisa/'>oced.org</a>.</p>
+			<h4> What is ESCS?</h4>
+			<p class = 'small_text'>ESCS is a composite metric of students' social, cultural, and economic status. It factors in such variables as parents' education level, language spoken at home, and number of books in the house. Due to cultural variatons, each country has a unique formula determined using PCA. The higher the value, the better off the student is, with an ESCS value of 0 being middle class. More information on ESCS is available in the <a href = 'https://www.oecd.org/pisa/pisaproducts/PISA%202012%20Technical%20Report_Chapter%2016.pdf'>PISA Technical Report</a>, beginning on page 351.</p>
+			<p class = 'small_text'>Download the complete <a href = 'https://www.google.com/url?q=https://s3.amazonaws.com/udacity-hosted-downloads/ud507/pisa2012.csv.zip&sa=D&ust=1474053222244000&usg=AFQjCNHyBK2oWwB62iewmFDVfVhRI0oqHw'>2012 PISA data set</a>. (~2.5 GB)</p>
+		
+		</div>
+	</div>
+
+    <script type='text/javascript'>  
+	// make button work on mobile too
+	$(document).ready(function() {
+		$('#clear_button').on('click touchstart', clear_scatter)
+    });
+
+  	
+  	// draws empty map	
+	function draw(geo_data) {
+        'use strict';
+        // set dimensions
+        var map_div = document.getElementById('map_div'); 
+		var map_width = map_div.offsetWidth;
+		var map_height = map_div.offsetHeight;
+		var map_margin = 75;
+		var map_scale = map_width / 6.5;
+    
+        // draw the map
+        var svg = d3.select('#map_div')
+            .append('svg')
+            .attr('width', map_width + map_margin)
+            .attr('height', map_height + map_margin)
+            .append('g')
+            .attr('class', 'map');
+       
+        var projection = d3.geo.mercator()
+							   .scale(map_scale)
+							   .translate([map_width/2, map_height/1.9]);
+        
+        var path = d3.geo.path().projection(projection);
+
+        var map = svg.selectAll('path')
+					 .data(geo_data.features)
+					 .enter()
+					 .append('path')
+					 .attr('d', path)
+					 .style('fill', '#f7fbff')	 
+					 .style('stroke', 'black')
+					 .style('stroke-width', 0.5)
+					 .append('svg:title')
+					 .text(function(d) {
+					        return d.properties.name
+				         })
+				     .append('svg:legend');
+		
+		// color code the map	         
+		d3.csv('median_scores_by_country_complete.csv', pick_color)	
+		
+		// draw initial map legend
+		var dummy_scale = d3.scale.quantile()
+							      .domain([1,2,3,4,5])
+							      .range(['red', 'blue', 'yellow', 'purple', 'green']);
+		var map_legend = d3.select('#map_legend_div')
+						   .append('svg');
+	
+		map_legend.append('g')
+				  .attr('class', 'legendQuant')
+		          .attr('transform', 'translate(20,20)');
+		
+		var legend = d3.legend.color()
+		               .labelFormat(d3.format('.2f'))
+		               .scale(dummy_scale);
+		
+		map_legend.select('.legendQuant')
+		          .call(legend);
+			
+	}
+	
+	// adds color scale to map	
+	function pick_color(data) {
+		var svg = d3.select('#map_div')
+		data.map(function (d) {
+				d.math = +d.math;
+				d.reading = +d.reading;
+				d.science = +d.science;
+		})
+		
+		// color code by subject
+		if (subject == 'math') {
+			var colors = ['#edf8fb','#b3cde3','#8c96c6','#8856a7','#810f7c'];
+		}
+		if (subject == 'reading') {
+			var colors = ['#edf8fb','#b2e2e2','#66c2a4','#2ca25f','#006d2c'];
+		}
+		if (subject == 'science') {
+			var colors = ['#ffffb2','#fecc5c','#fd8d3c','#f03b20','#bd0026'];
+		}
+							
+		var score_extent = d3.extent(data, function(d) {
+				return d[subject];
+			});
+			
+		var score_scale = d3.scale.quantile()
+						   .domain(score_extent)
+						   .range(colors);
+						   
+		// update legend with appropriate scale
+		var map_legend = d3.select('#map_legend_div');
+
+		map_legend.append('g')
+				  .attr('class', 'legendQuant')
+		          .attr('transform', 'translate(20,20)');
+		
+		var legend = d3.legend.color()
+		               .labelFormat(d3.format('.0f'))
+		               .scale(score_scale);
+		
+		map_legend.select('.legendQuant')
+		          .call(legend);
+		
+		// create object that pairs countries with correct color		
+		var color_assignments = {};
+		var l = data.length;
+		for (var i = 0; i < l; i++) {
+			color_assignments[data[i].country] = score_scale(data[i][subject]);
+		}
+
+		function update_color(d) {
+			if (d.properties.name in color_assignments) {
+				return color_assignments[d.properties.name]
+			} else {
+				return 'white'
+			}
+		}
+		
+		// create object that pairs countries with math scores
+		var scores = {};
+		for (var i = 0; i < l; i++) {
+			scores[data[i].country] = data[i][subject].toFixed(0);
+		}
+		
+		function update_score(d) {
+			if (d.properties.name in color_assignments) {
+				return [d.properties.name,
+				scores[d.properties.name]];
+			} else {
+				return [d.properties.name, 'no data available'];
+			}
+		}
+		
+		// click code
+		function on_click(d) {
+			if (d.properties.name in color_assignments) {
+				country = d.properties.name;
+				d3.csv('quintiles4.csv', update_scatter);
+			}
+		};
+
+		// update colors, hover-text					
+		svg.selectAll('path')
+		   .style('fill', update_color)
+		   .on('click', on_click)
+		   	
+		svg.selectAll('title')
+		   .text(update_score)
+		
+	}
+	
+	// draws scatter plot axis
+	function add_scatter(data) {
+		'use strict'
+		var country = 'USA'
+
+		data.map(function (d) {
+							d.prob = +d.prob;
+							d.escs = +d.escs;
+							d.math = +d.math;
+							d.reading = +d.reading;
+							d.science = +d.science;
+				});
+
+		var scatter = d3.select('#scatter_div')
+					.append('svg')
+					.attr('width', scatter_width)
+					.attr('height', scatter_height)
+					.append('g')
+					.attr('class', 'chart');
+					
+		// bind data to circles
+		scatter.selectAll('circle')
+		       .data(data.filter(function(d) { return d.country == country }))
+		       .enter()
+		       .append('circle')
+		       
+		var x_translate = scatter_height - scatter_margin
+		//append x-axis
+		scatter.append('g')
+			   .attr('class', 'x axis')
+			   .attr('transform', 'translate(0 ,' + x_translate + ')')
+			   .call(escs_axis)
+			   .selectAll('text')  
+			   .style('text-anchor', 'end')
+               .attr('dx', '-.8em')
+               .attr('dy', '.15em')
+               .attr('transform', 'rotate(-65)' );
+               
+        scatter.append('text')
+			   .attr('class', 'x label')
+			   .attr('text-anchor', 'end')
+			   .attr('x', scatter_width/2)
+			   .attr('y', scatter_height - 15)
+		       .text('ESCS');
+		   
+		// append y-axis	
+		scatter.append('g')
+			   .attr('class', 'y axis')
+			   .attr('transform', 'translate('+ scatter_margin +', 0)')
+			   .call(score_axis);
+			   
+	    scatter.append('text')
+			   .attr('class', 'y label')
+			   .attr('id', 'ylabel')
+		       .attr('text-anchor', 'end')
+			   .attr('y', 25 )
+			   .attr('x', -scatter_height/5)
+			   .attr('transform', 'rotate(-90)')
+			   .text('Median ' + subject + ' score');
+			
+		scatter.selectAll('circle')
+			   .attr('id', function(d) { return d.country })
+               .attr('cx', function(d) {
+                  return x_scale(d['escs']);
+                })
+               .attr('cy', function(d) {
+                  return y_scale(d[subject]);
+                })
+               .attr('r', radius)
+               .attr('fill', 'blue');
+               
+        // initialize empty legend
+        var scatter_legend = d3.select('#legend_div')
+							   .append('svg');
+						   
+        var empty_scale = d3.scale.ordinal()
+						.domain([])
+						.range([]);
+		
+		scatter_legend.append('g')
+					  .attr('class', 'legendOrdinal')
+					  .attr('id', 'scatter_legend')
+					  .attr('transform', 'translate(' + legend_margin +', '+ legend_margin+')');
+	
+		var legendOrdinal = d3.legend.color()  
+		                             .shape('path', d3.svg.symbol().type('circle').size(100)())
+		                             .shapePadding(10)
+		                             .scale(empty_scale);
+		                            
+		scatter_legend.select('.legendOrdinal')
+					  .attr('id', 'scatter_legend')
+					  .call(legendOrdinal);
+        
+		clear_scatter();
+	}
+	
+	// updates scatter plot when country is clicked
+	function update_scatter(data) {
+		var scatter = d3.select('#scatter_div')
+		
+		// reset scatter plot if called for
+		if (country == 'reset') {
+			var scatter = d3.select('#scatter_div')
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data)  
+                              
+			data_upd.remove();
+			country_colors = [];
+			unused_colors = ['#1b9e77','#d95f02','#7570b3','#e7298a','#e6ab02'];
+			scatter.select('#ylabel')
+			   .text('Median ' + subject + ' score');
+			var empty_scale = d3.scale.ordinal()
+						.domain([])
+						.range([]);
+			draw_legend(empty_scale);
+			return;
+		}
+		
+		// redraw for new subject, if called for
+		if (country == 'change_subject') {
+			console.log(selected_countries);
+			var scatter = d3.select('#scatter_div')
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data)  
+                              
+			data_upd.remove();
+			scatter.select('#ylabel')
+			   .text('Median ' + subject + ' score');
+			for (var i = 0; i < selected_countries.length; i++)	{
+				country = selected_countries[i];
+				color = used_colors[i]
+				var data_upd = scatter.select('svg')
+		                              .selectAll('circle')
+		                              .data(data.filter( function(d) { 
+										  return d['country'] == country}),  
+										  function(d) { return d.row; });
+				data_ent = data_upd.enter();						  
+				data_ent.append('circle')
+					    .attr('cx', function(d) {
+				                  return x_scale(d['escs']);
+				                })
+				               .attr('cy', function(d) {
+				                  return y_scale(d[subject]);
+				                })
+				        .attr('r', 5)
+				        .attr('fill', color)
+				        .append('svg:title')
+							 .text(function(d) {
+							        return [d.country, d.prob];
+						         });
+				}
+			return;
+		};
+				
+			
+			
+
+
+				
+		
+		// keep track of colors
+		var new_country = true;
+		for (var i=0; i < country_colors.length; i++) {
+	        if (country_colors[i].country === country) {
+				new_country = false;
+				break;
+			}
+		}
+		
+		if (new_country == true) {
+			add_country = {'country':country, 'color': unused_colors[0]};
+			country_colors.push(add_country);
+			unused_colors.splice(0,1);
+        }		
+
+		// drop first country and update color scale if more than 5 are selected
+		if (country_colors.length > 5) {
+			drop_country = country_colors[0].country;
+			var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data.filter( function(d) { 
+								  return d['country'] == drop_country}),  
+								  function(d) { return d.row; });
+			data_upd.remove();
+			country_colors[5].color = country_colors[0].color
+			country_colors.splice(0,1);
+		};	
+		
+		// select matching data
+        var data_upd = scatter.select('svg')
+                              .selectAll('circle')
+                              .data(data.filter( function(d) { 
+								  return d['country'] == country}),  
+								  function(d) { return d.row; });
+
+		data_ent = data_upd.enter();
+      	
+        // remove selected country from graph and country_colors
+        data_upd.remove();
+        if (new_country == false) {
+			unused_colors.push(country_colors[i].color);
+			country_colors.splice(i,1);
+		}
+		
+		// update arrays of countries and colors for scale
+		selected_countries = []
+		used_colors = []
+		for (var j = 0; j < country_colors.length; j++) {	
+			used_colors.push(country_colors[j].color);			
+			selected_countries.push(country_colors[j].country);
+		}			
+		
+        // add selected country to graph
+  	    data_ent.append('circle')
+			    .attr('cx', function(d) {
+		                  return x_scale(d['escs']);
+		                })
+		               .attr('cy', function(d) {
+		                  return y_scale(d[subject]);
+		                })
+		        .attr('r', 5)
+		        .attr('fill', used_colors[used_colors.length-1])
+		        .append('svg:title')
+					 .text(function(d) {
+					        return [d.country, d.prob];
+				         });
+			
+		// draw the updated legend
+		var ordinal = d3.scale.ordinal()
+						.domain(selected_countries)
+						.range(used_colors);
+		draw_legend(ordinal);
+	
+	}
+
+	// clear all data from scatter plot
+	function clear_scatter() {
+		country = 'reset';
+		d3.csv('quintiles4.csv', update_scatter)
+
+	}
+	
+	// draw scatter plot legend
+	function draw_legend(scale) {
+		var scatter_legend = d3.select('#legend_div');
+
+		scatter_legend.append('g')
+					  .attr('class', 'legendOrdinal')
+					  .attr('transform', 'translate(' + legend_margin +', '+ legend_margin+')');
+	
+		var legendOrdinal = d3.legend.color()  
+		                             .shape('path', d3.svg.symbol().type('circle').size(100)())
+		                             .shapePadding(10)
+		                             .scale(scale);
+                           
+		scatter_legend.select('.legendOrdinal')
+					  .attr('id', 'scatter_legend')
+					  .call(legendOrdinal);
+		}		
+	
+    // global variables
+		// keep track of what is on scatter plot currently
+	    var country_colors = [];
+	    var unused_colors = ['#1b9e77','#d95f02','#7570b3','#e7298a','#e6ab02'];
+	    
+		// set scatter plot dimensions
+		var scatter_div = document.getElementById('scatter_div'); 
+		var scatter_width = scatter_div.offsetWidth;
+		var scatter_height = scatter_div.offsetHeight;
+		var scatter_margin = 75;
+		var radius = 5
+		
+		// scatter plot horizontal axis
+		var x_extent = [-2.75, 3.70];
+		var x_scale = d3.scale.linear()
+			.domain(x_extent)
+			.range([scatter_margin, scatter_width - scatter_margin/2]);
+		var escs_axis = d3.svg.axis()
+			.scale(x_scale);
+		  
+		// scatter plot vertical axis
+		var y_extent = [312, 672];
+		var y_scale = d3.scale.linear()
+			.domain(y_extent)
+			.range([scatter_height - scatter_margin, scatter_margin/2]);
+		var score_axis = d3.svg.axis()
+			.scale(y_scale)
+			.orient('left');
+			
+		// set legend dimensions
+		var legend_div = document.getElementById('legend_div'); 
+		var legend_width = legend_div.offsetWidth;
+		var legend_height = legend_div.offsetHeight;
+		var legend_margin = 25;
+	
+
+	function redraw(c) {
+		subject = c;
+		d3.csv('median_scores_by_country_complete.csv', pick_color);
+		country = 'change_subject';
+		d3.csv('quintiles4.csv', update_scatter);
+	}	
+
+	
+	// initial function calls
+	var subject = 'math'
+	d3.json('world_countries.json', draw);
+	d3.csv('quintiles4.csv', add_scatter);
+
+    </script>
+
+</body>
+</html>
