@@ -16,7 +16,7 @@
 		<br>
 		<p>For this investigation, we will be using the 2012 PISA dataset. The PISA, or Programme for International Student Assessment, is a survey given to 15-year-old students around the world. It not only assesses their educational achievement in math, reading, and science, but also collects a wealth of information about their home and family life, their schools, their available technology, and so on. Since the PISA is conducted every three years, and extensive data analysis is performed before making the results public, the most current data available is from 2012.</p>
 		<br>
-		<p>The bar chart below shows the median math scores for every participating locale. </p>
+		<p>The bar chart below shows the median <a href = "#" onClick = "redraw_bar('math')">math</a> scores for every participating locale, with the United States hilighted in red. You can also view this chart for <a href = "#" onClick = "redraw_bar('reading')">reading</a> and <a href = "#" onClick = "redraw_bar('science')">science</a>. It only takes a quick glance to see that the US hovers around the bottom third for math, and somewhere around the middle for reading and science. We're definitely not leading the pack when it comes to median scores.</p>
 		<div id = 'bar_div'></div>
 		<p>
 		</p>
@@ -73,40 +73,43 @@
 	    
 		// draw bar chart
 		function draw_bar(data) {
-			var bar_div = document.getElementById('narrative'); 
-			var bar_width = bar_div.offsetWidth;
-			var bar_height = 300;
+			console.log(bar_subject);
+
 			
 			var bar_svg = d3.select('#bar_div')
 							.append('svg')
 							.attr('width', bar_width)
-							.attr('height', bar_height)
+							.attr('height', bar_height + 10)
 							.append('g')
 							.attr('class', 'bar');
 							
 			var bar_chart = new dimple.chart(bar_svg, data);
             var x = bar_chart.addCategoryAxis('x', 'country'); 
-            bar_chart.addMeasureAxis('y', 'math');
+            bar_chart.addMeasureAxis('y', bar_subject);
             bar_chart.addSeries(null, dimple.plot.bar);
             bar_chart.draw();
             
             bar_chart.svg.selectAll('.dimple-bar').filter(function(d) {
-				console.log(d.x);
 				return d.x == 'USA'
-				}).style("fill", "red");
+				}).style('fill', 'red');
         };
-        
-        
-        
-        function bar_color(tag) {
-			if (tag == 'USA') {
-				return 'red'
-			} else {
-				return 'blue'
-			}
+		
+		var bar_div = document.getElementById('narrative'); 
+		var bar_width = bar_div.offsetWidth;
+		var bar_height = 300;
+		var bar_subject = 'science'
+		d3.select('#bar_div').append('h3').text("Median PISA Scores by Country");
+		d3.csv('median_scores_by_country_complete.csv', draw_bar);	
+		
+		// redraw bar chart on click
+		function redraw_bar(c) {
+			bar_subject = c;
+			d3.csv('median_scores_by_country_complete.csv', draw_bar);	
 		}
-        
-        d3.csv('median_scores_by_country_complete.csv', draw_bar);
+
+		
+		
+		
 				
 	  	
 	  	// draws empty map	
