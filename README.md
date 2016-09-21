@@ -1,7 +1,9 @@
 ## Summary  
-This visualization was generated using the PISA dataset, which is an international metric of student achievement. The map component shows, at glance, how different countries compare in math, reading, or science. When the user clicks on a country, the scatterplot will populate with that country's data broken down by socioeconomic quintile. Up to 5 countries can be selected at once on the scatterplot, allowing the user to see how the richest and poorest students from various countries compare.  
+This visualization was generated using the PISA dataset, which is an international metric of student achievement. The visualization begins with a narrative that points out general trends between test scores and socioeconomic status. The user can then explore these relationship in more detail using the interactive map and scatter plot.
 
 ## Design  
+### Narrative Rationale
+I chose to use a narrative to set the stage for the visualization because the PISA dataset and ESCS scores are not something most of the general public is immediately familiar with. So I felt some context would aid in understanding what is going on in the scatter plot. I first used my javascript code to generate images, then saved them for use in the narrative, since there was no compelling reason to make them interactive and these low-resolution images look just as nice and load faster than the d3 code. The code is utilized in the following sections to allow the user to interact with the map and generate their own scatterplots.
 ### Map Rationale  
 I chose to use a chloropleth map to compare the various countries, rather than a bar chart or scatter plot, for two primary reasons. First, with about 65 countries included in the dataset, it would be a challenge for the user to see which point or bar represented which country. This could be solved with hover-text, as I used in the map, but I felt that the map allowed a more intuitive user interface. You don't need to hover over the United States, for example, to see how it compares to China.  
 The other reason I chose the map, is that it makes it very obvious which countries are not represented in the dataset: all of Africa, most of the Middle East, and India. During my exploratory data analysis, which I performed in R, I didn't notice how many countries were un-represented. It was only after I plotted it on the map that this became evident. So I decided to stick with the map to allow the reader the same observation.  
@@ -65,3 +67,7 @@ http://www.oecd.org/pisa/pisaproducts/pisadataanalysismanualspssandsassecondedit
 http://stackoverflow.com/questions/3330193/early-exit-from-function
 https://www.dashingd3js.com/svg-paths-and-d3js
 http://bl.ocks.org/d3noob/38744a17f9c0141bcd04
+https://codedump.io/share/cRsvufwXfrPc/1/is-it-possible-to-highlight-bars-in-dimplejs-bar-chart-based-on-y-axis-value
+https://github.com/PMSI-AlignAlytics/dimple/wiki/dimple.chart#assignColor
+http://stackoverflow.com/questions/17774731/calling-javascript-function-from-hyperlink
+http://stackoverflow.com/questions/20590239/maintain-aspect-ratio-of-div-but-fill-screen-width-and-height-in-css

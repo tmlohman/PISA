@@ -18,7 +18,6 @@ h1, h2, h3, h4 {
 	width: 100%;
 	min-width: 1000px;
 	height: auto;
-	border: 1px solid red;
 }
 /* divs for narrative, plots, and interactive*/
 #narrative1, #narrative2 {
@@ -47,9 +46,6 @@ h1, h2, h3, h4 {
 	width: 95vw; 
     height: 56.25vw;
 }
-.border {
-	border: 1px solid blue;
-}
 /* divs and styling for static images*/
 .legend {
 	position: absolute;
@@ -66,7 +62,6 @@ h1, h2, h3, h4 {
 .img {
 	width: 500px;
 	height: 300px;
-	border: 0.5px solid green;
 }
 #img1 {
 	position: relative;
@@ -158,8 +153,6 @@ h1, h2, h3, h4 {
 }  
 .text {
 	font-family: arial;
-	border: .5px solid red;
-
 }
 .title {
 	text-align: center;	
