@@ -1,0 +1,170 @@
+/* text elements*/
+p {
+	text-indent: 20px;
+	font-family: Palatino Linotype;
+}
+h1, h2, h3, h4 {
+	font-family: Palatino Linotype;
+	text-align: center;
+}
+.discussion {
+	font-size: 120%;
+	line-height: 120%;
+}
+
+/* main div for all content*/
+#container {
+	position: relative;
+	width: 100%;
+	min-width: 1000px;
+	height: auto;
+	border: 1px solid red;
+}
+/* divs for narrative, plots, and interactive*/
+#narrative1, #narrative2 {
+	position: relative;
+	width: 1000px;
+	height: auto;
+	padding: 50px 100px 0px 100px;
+}
+#plots {
+	position: relative;
+	width: 1000px;
+	height: 600px;
+	margin-left: 100px;
+	margin-right: 100px;
+}
+#narrative3 {
+	position: relative;
+	width: 1000px;
+	height: auto;
+	padding-left: 100px;
+	padding-right: 100px;
+	padding-bottom: 50px;
+}
+#interactive {
+	position: relative;
+	width: 95vw; 
+    height: 56.25vw;
+}
+.border {
+	border: 1px solid blue;
+}
+/* divs and styling for static images*/
+.legend {
+	position: absolute;
+	top: 80px;
+	right: 10px;
+	width: 90px;	
+}
+.scatter {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	width: 400px;
+}
+.img {
+	width: 500px;
+	height: 300px;
+	border: 0.5px solid green;
+}
+#img1 {
+	position: relative;
+	float: right;
+}
+#img2 {
+	position: relative;
+	float: left;
+}
+#img3 {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+#img4 {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+}
+#img5 {
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
+}
+#img6 {
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+}
+/* divs and styling for interactive*/
+#map_div {
+    float: left;
+    width: 63%;
+    height: 100%;
+    z-index: -1;
+}
+#title_div {
+    float: left;
+    width: 98%;
+    height: 150px;
+    padding: 10px 0px 0px 10px;
+}
+#radio_div {
+    float: left;
+    width: 130px;
+    height: 120px;
+    padding: 10px 10px 0px 10px;
+    text-align: left;
+}			
+#map_legend_div {
+    float: right;
+    width: 180px;
+    height: 120px;
+    padding: 10px 0px 0px 10px;
+}
+#scatter_title_div {
+	position: relative;
+    float: right;
+    width: 33.5%;
+    height: 20%;
+    padding: 10px 20px 0px 0px;
+} 
+#clear_button {
+	float: right;
+	margin-top: 10px;
+}
+#legend_div {
+	position: absolute;
+	top: 40px;
+	left: 10px;
+	margin: 10px;
+	width: 180px;
+	height: 120px;
+
+}
+#scatter_div {
+    float: right;
+    width: 35%;
+    height: 40%;
+} 
+.legendOrdinal {
+	padding: 0px;
+}
+#text_div {
+	float: right;
+    width: 35%;
+    height: 40%;
+    padding: 0px 10px 0px 0px;
+}  
+.text {
+	font-family: arial;
+	border: .5px solid red;
+
+}
+.title {
+	text-align: center;	
+	margin: 0px;
+}
+.small_text{
+	font-size: small;
+}
